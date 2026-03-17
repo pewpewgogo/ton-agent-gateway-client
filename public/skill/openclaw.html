@@ -1,0 +1,156 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Agent Gateway — OpenClaw</title>
+  <link rel="stylesheet" href="../shared.css">
+  <link rel="stylesheet" href="shared-skill.css">
+</head>
+<body>
+  <div class="grid-bg"></div>
+
+  <nav class="site-nav">
+    <a href="/" class="nav-logo"><span>&gt;</span> agent_gateway</a>
+    <div class="nav-links">
+      <a href="/docs.html">Docs</a>
+      <a href="/skills.html" class="active">Skill</a>
+      <a href="https://api.tongateway.ai/docs" target="_blank">API</a>
+      <a href="/app.html" class="nav-cta">Open Dashboard</a>
+    </div>
+  </nav>
+
+  <div class="page-content">
+    <a href="/skills.html" class="back-link">&larr; All Skills</a>
+
+    <div class="skill-hero">
+      <div class="skill-hero-icon" style="background:rgba(52,211,153,0.08)">
+        <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="#34d399" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><path d="M8 14s1.5 2 4 2 4-2 4-2"/><line x1="9" y1="9" x2="9.01" y2="9"/><line x1="15" y1="9" x2="15.01" y2="9"/></svg>
+      </div>
+      <div>
+        <h1 class="page-title">OpenClaw</h1>
+        <p class="page-desc">Install the Agent Gateway skill file for OpenClaw.</p>
+      </div>
+    </div>
+
+    <!-- Setup -->
+    <div class="card">
+      <h2>Setup</h2>
+
+      <div class="step">
+        <span class="step-num">1</span><span class="step-title">Get your token</span>
+        <div class="step-body">
+          <p>Connect your wallet on the <a href="/app.html">dashboard</a> and create a token for your agent.</p>
+        </div>
+      </div>
+      <div class="step">
+        <span class="step-num">2</span><span class="step-title">Install the skill (project-level)</span>
+        <div class="step-body">
+<pre><code>mkdir -p skills/agent-gateway
+curl -o skills/agent-gateway/SKILL.md \
+  https://tongateway.ai/agent-gateway.md</code><button class="copy-btn" onclick="copyBlock(this)">Copy</button></pre>
+          <p style="margin-top:12px">Or install globally:</p>
+<pre><code>mkdir -p ~/.openclaw/skills/agent-gateway
+curl -o ~/.openclaw/skills/agent-gateway/SKILL.md \
+  https://tongateway.ai/agent-gateway.md</code><button class="copy-btn" onclick="copyBlock(this)">Copy</button></pre>
+        </div>
+      </div>
+      <div class="step">
+        <span class="step-num">3</span><span class="step-title">Configure the MCP server (optional)</span>
+        <div class="step-body">
+          <p>For native tool access, also install the MCP server:</p>
+<pre><code>npm install -g @tongateway/mcp</code><button class="copy-btn" onclick="copyBlock(this)">Copy</button></pre>
+          <p>Add to your OpenClaw MCP config:</p>
+<pre><code>{
+  "mcpServers": {
+    "agent-gateway": {
+      "command": "agent-gateway-mcp",
+      "env": {
+        "AGENT_GATEWAY_TOKEN": "YOUR_TOKEN_HERE",
+        "AGENT_GATEWAY_API_URL": "https://api.tongateway.ai"
+      }
+    }
+  }
+}</code><button class="copy-btn" onclick="copyBlock(this)">Copy</button></pre>
+        </div>
+      </div>
+      <div class="step">
+        <span class="step-num">4</span><span class="step-title">Restart &amp; use</span>
+        <div class="step-body">
+          <p>Restart OpenClaw — skills are loaded at startup. Then just say "send TON" and the agent will use the skill.</p>
+        </div>
+      </div>
+    </div>
+
+    <!-- Skill Content -->
+    <div class="card">
+      <h2>Skill File Content</h2>
+      <p style="font-size:13px;color:var(--text-dim);margin-bottom:12px">Full content of <code>agent-gateway.md</code>:</p>
+<pre><code>---
+name: agent-gateway
+description: Install and use Agent Gateway — lets your AI agent
+  request TON blockchain transfers that are approved by a human
+  wallet owner via TON Connect
+---
+
+# Agent Gateway Skill
+
+Agent Gateway lets you request TON transfers from a human's wallet.
+You submit transfer requests, the wallet owner approves them.
+
+## Setup
+
+1. Get a token from https://tongateway.ai
+2. npm install -g @tongateway/mcp
+3. Configure MCP server
+
+## Tools
+
+| Tool                   | Description                        |
+|------------------------|------------------------------------|
+| request_transfer       | Queue a TON transfer for approval  |
+| get_request_status     | Check request status by ID         |
+| list_pending_requests  | List all pending requests          |
+
+## Usage
+
+request_transfer({ to: "EQD...addr", amountNano: "1000000000" })
+  1 TON = 1,000,000,000 nanoTON
+
+## Direct HTTP (fallback)
+
+POST https://api.tongateway.ai/v1/safe/tx/transfer
+  Authorization: Bearer TOKEN
+  { "to": "0:dest...", "amountNano": "1000000000" }
+
+## Important
+
+- You cannot sign transactions, only request them
+- Token = session, guard it like a password
+- Requests expire in 5 minutes
+- Tokens don't expire — revoke when no longer needed</code><button class="copy-btn" onclick="copyBlock(this)">Copy</button></pre>
+    </div>
+  </div>
+
+  <footer class="site-footer">
+    <div class="left">&copy; 2026 Agent Gateway &middot; Built on <svg viewBox="12 15 32 30" fill="none" xmlns="http://www.w3.org/2000/svg" style="display:inline-block;height:14px;width:14px;vertical-align:middle"><path d="M37.5603 15.6277H18.4386C14.9228 15.6277 12.6944 19.4202 14.4632 22.4861L26.2644 42.9409C27.0345 44.2765 28.9644 44.2765 29.7345 42.9409L41.5381 22.4861C43.3045 19.4251 41.0761 15.6277 37.5627 15.6277H37.5603ZM26.2548 36.8068L23.6847 31.8327L17.4833 20.7414C17.0742 20.0315 17.5795 19.1218 18.4362 19.1218H26.2524V36.8092L26.2548 36.8068ZM38.5108 20.739L32.3118 31.8351L29.7417 36.8068V19.1194H37.5579C38.4146 19.1194 38.9199 20.0291 38.5108 20.739Z" fill="currentColor"></path></svg> TON</div>
+    <div class="right">
+      <a href="/docs.html">Docs</a>
+      <a href="/skills.html">Skill</a>
+      <a href="https://api.tongateway.ai/docs" target="_blank">API</a>
+      <a href="/app.html">Dashboard</a>
+    </div>
+  </footer>
+
+  <script>
+    function copyBlock(btn) {
+      const code = btn.closest('pre').querySelector('code');
+      navigator.clipboard.writeText(code.textContent).then(() => {
+        btn.textContent = 'Copied!';
+        btn.classList.add('copied');
+        setTimeout(() => { btn.textContent = 'Copy'; btn.classList.remove('copied'); }, 2000);
+      });
+    }
+  </script>
+</body>
+</html>

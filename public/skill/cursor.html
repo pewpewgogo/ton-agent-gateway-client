@@ -1,0 +1,140 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Agent Gateway — Cursor</title>
+  <link rel="stylesheet" href="../shared.css">
+  <link rel="stylesheet" href="shared-skill.css">
+</head>
+<body>
+  <div class="grid-bg"></div>
+
+  <nav class="site-nav">
+    <a href="/" class="nav-logo"><span>&gt;</span> agent_gateway</a>
+    <div class="nav-links">
+      <a href="/docs.html">Docs</a>
+      <a href="/skills.html" class="active">Skill</a>
+      <a href="https://api.tongateway.ai/docs" target="_blank">API</a>
+      <a href="/app.html" class="nav-cta">Open Dashboard</a>
+    </div>
+  </nav>
+
+  <div class="page-content">
+    <a href="/skills.html" class="back-link">&larr; All Skills</a>
+
+    <div class="skill-hero">
+      <div class="skill-hero-icon" style="background:rgba(59,130,246,0.08)">
+        <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="#3b82f6" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M13 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V9z"/><polyline points="13 2 13 9 20 9"/></svg>
+      </div>
+      <div>
+        <h1 class="page-title">Cursor</h1>
+        <p class="page-desc">Connect Agent Gateway to Cursor via MCP server.</p>
+      </div>
+    </div>
+
+    <!-- Setup -->
+    <div class="card">
+      <h2>Setup</h2>
+
+      <div class="step">
+        <span class="step-num">1</span><span class="step-title">Get your token</span>
+        <div class="step-body">
+          <p>Connect your wallet on the <a href="/app.html">dashboard</a> and create a token for your agent.</p>
+        </div>
+      </div>
+      <div class="step">
+        <span class="step-num">2</span><span class="step-title">Install the MCP server</span>
+        <div class="step-body">
+<pre><code>npm install -g @tongateway/mcp</code><button class="copy-btn" onclick="copyBlock(this)">Copy</button></pre>
+        </div>
+      </div>
+      <div class="step">
+        <span class="step-num">3</span><span class="step-title">Add to Cursor settings</span>
+        <div class="step-body">
+          <p>Open Cursor Settings &rarr; MCP Servers, and add:</p>
+<pre><code>{
+  "mcpServers": {
+    "agent-gateway": {
+      "command": "agent-gateway-mcp",
+      "env": {
+        "AGENT_GATEWAY_TOKEN": "YOUR_TOKEN_HERE",
+        "AGENT_GATEWAY_API_URL": "https://api.tongateway.ai"
+      }
+    }
+  }
+}</code><button class="copy-btn" onclick="copyBlock(this)">Copy</button></pre>
+          <p>Paste your token from step 1.</p>
+        </div>
+      </div>
+      <div class="step">
+        <span class="step-num">4</span><span class="step-title">Use it</span>
+        <div class="step-body">
+          <p>In Cursor's AI chat, just say <code>"send 1 TON to EQD...abc"</code> and the agent will use the MCP tools.</p>
+        </div>
+      </div>
+    </div>
+
+    <!-- Tools -->
+    <div class="card">
+      <h2>Available Tools</h2>
+      <table>
+        <tr><th>Tool</th><th>Params</th><th>Description</th></tr>
+        <tr>
+          <td><code>request_transfer</code></td>
+          <td><code>to</code>, <code>amountNano</code>, <code>payloadBoc?</code></td>
+          <td>Queue a TON transfer for owner approval</td>
+        </tr>
+        <tr>
+          <td><code>get_request_status</code></td>
+          <td><code>id</code></td>
+          <td>Check if a request was approved, rejected, or pending</td>
+        </tr>
+        <tr>
+          <td><code>list_pending_requests</code></td>
+          <td>&mdash;</td>
+          <td>List all pending transfer requests</td>
+        </tr>
+      </table>
+    </div>
+
+    <!-- Example -->
+    <div class="card">
+      <h2>Example</h2>
+<pre><code>You: Send 0.5 TON to EQD...abc
+
+Agent: I'll request that transfer for you.
+       [calls request_transfer with to="EQD...abc", amountNano="500000000"]
+
+       Transfer request created (ID: abc-123).
+       Please approve it in your Agent Gateway dashboard.
+
+You: Is it confirmed?
+
+Agent: [calls get_request_status with id="abc-123"]
+       Yes, the transfer was confirmed and signed by the wallet.</code></pre>
+    </div>
+  </div>
+
+  <footer class="site-footer">
+    <div class="left">&copy; 2026 Agent Gateway &middot; Built on <svg viewBox="12 15 32 30" fill="none" xmlns="http://www.w3.org/2000/svg" style="display:inline-block;height:14px;width:14px;vertical-align:middle"><path d="M37.5603 15.6277H18.4386C14.9228 15.6277 12.6944 19.4202 14.4632 22.4861L26.2644 42.9409C27.0345 44.2765 28.9644 44.2765 29.7345 42.9409L41.5381 22.4861C43.3045 19.4251 41.0761 15.6277 37.5627 15.6277H37.5603ZM26.2548 36.8068L23.6847 31.8327L17.4833 20.7414C17.0742 20.0315 17.5795 19.1218 18.4362 19.1218H26.2524V36.8092L26.2548 36.8068ZM38.5108 20.739L32.3118 31.8351L29.7417 36.8068V19.1194H37.5579C38.4146 19.1194 38.9199 20.0291 38.5108 20.739Z" fill="currentColor"></path></svg> TON</div>
+    <div class="right">
+      <a href="/docs.html">Docs</a>
+      <a href="/skills.html">Skill</a>
+      <a href="https://api.tongateway.ai/docs" target="_blank">API</a>
+      <a href="/app.html">Dashboard</a>
+    </div>
+  </footer>
+
+  <script>
+    function copyBlock(btn) {
+      const code = btn.closest('pre').querySelector('code');
+      navigator.clipboard.writeText(code.textContent).then(() => {
+        btn.textContent = 'Copied!';
+        btn.classList.add('copied');
+        setTimeout(() => { btn.textContent = 'Copy'; btn.classList.remove('copied'); }, 2000);
+      });
+    }
+  </script>
+</body>
+</html>

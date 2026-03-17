@@ -1,0 +1,156 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Agent Gateway — MCP Server</title>
+  <link rel="stylesheet" href="../shared.css">
+  <link rel="stylesheet" href="shared-skill.css">
+</head>
+<body>
+  <div class="grid-bg"></div>
+
+  <nav class="site-nav">
+    <a href="/" class="nav-logo"><span>&gt;</span> agent_gateway</a>
+    <div class="nav-links">
+      <a href="/docs.html">Docs</a>
+      <a href="/skills.html" class="active">Skill</a>
+      <a href="https://api.tongateway.ai/docs" target="_blank">API</a>
+      <a href="/app.html" class="nav-cta">Open Dashboard</a>
+    </div>
+  </nav>
+
+  <div class="page-content">
+    <a href="/skills.html" class="back-link">&larr; All Skills</a>
+
+    <div class="skill-hero">
+      <div class="skill-hero-icon" style="background:rgba(192,132,252,0.08)">
+        <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="#c084fc" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
+      </div>
+      <div>
+        <h1 class="page-title">MCP Server</h1>
+        <p class="page-desc">Works with any MCP-compatible client via stdio transport.</p>
+      </div>
+    </div>
+
+    <!-- Setup -->
+    <div class="card">
+      <h2>Setup</h2>
+
+      <div class="step">
+        <span class="step-num">1</span><span class="step-title">Get your token</span>
+        <div class="step-body">
+          <p>Connect your wallet on the <a href="/app.html">dashboard</a> and create a token for your agent.</p>
+        </div>
+      </div>
+      <div class="step">
+        <span class="step-num">2</span><span class="step-title">Install the MCP server</span>
+        <div class="step-body">
+<pre><code>npm install -g @tongateway/mcp</code><button class="copy-btn" onclick="copyBlock(this)">Copy</button></pre>
+        </div>
+      </div>
+      <div class="step">
+        <span class="step-num">3</span><span class="step-title">Configure your MCP client</span>
+        <div class="step-body">
+          <p>Add to your MCP client config (the exact file depends on your tool):</p>
+<pre><code>{
+  "mcpServers": {
+    "agent-gateway": {
+      "command": "agent-gateway-mcp",
+      "env": {
+        "AGENT_GATEWAY_TOKEN": "YOUR_TOKEN_HERE",
+        "AGENT_GATEWAY_API_URL": "https://api.tongateway.ai"
+      }
+    }
+  }
+}</code><button class="copy-btn" onclick="copyBlock(this)">Copy</button></pre>
+          <p>Paste your token from step 1. The server communicates via stdio — no HTTP, no ports.</p>
+        </div>
+      </div>
+    </div>
+
+    <!-- Tools -->
+    <div class="card">
+      <h2>Available Tools</h2>
+      <table>
+        <tr><th>Tool</th><th>Params</th><th>Description</th></tr>
+        <tr>
+          <td><code>request_transfer</code></td>
+          <td><code>to</code>, <code>amountNano</code>, <code>payloadBoc?</code></td>
+          <td>Queue a TON transfer for owner approval</td>
+        </tr>
+        <tr>
+          <td><code>get_request_status</code></td>
+          <td><code>id</code></td>
+          <td>Check if a request was approved, rejected, or pending</td>
+        </tr>
+        <tr>
+          <td><code>list_pending_requests</code></td>
+          <td>&mdash;</td>
+          <td>List all pending transfer requests</td>
+        </tr>
+      </table>
+
+      <h3 style="font-size:14px;color:#94a3b8;margin:20px 0 8px">Amount reference</h3>
+      <table>
+        <tr><th>TON</th><th>nanoTON</th></tr>
+        <tr><td>0.1</td><td><code>100000000</code></td></tr>
+        <tr><td>0.5</td><td><code>500000000</code></td></tr>
+        <tr><td>1</td><td><code>1000000000</code></td></tr>
+        <tr><td>10</td><td><code>10000000000</code></td></tr>
+      </table>
+    </div>
+
+    <!-- Compatible Clients -->
+    <div class="card">
+      <h2>Compatible Clients</h2>
+      <p>The MCP server works with any client that supports the Model Context Protocol:</p>
+      <ul style="margin:12px 0 0 20px;font-size:14px">
+        <li><a href="/skill/claude.html">Claude Code</a></li>
+        <li><a href="/skill/cursor.html">Cursor</a></li>
+        <li><a href="/skill/codex.html">Codex CLI</a></li>
+        <li>Windsurf</li>
+        <li>Any MCP-compatible editor or agent</li>
+      </ul>
+    </div>
+
+    <!-- Example -->
+    <div class="card">
+      <h2>Example</h2>
+<pre><code>You: Send 0.5 TON to EQD...abc
+
+Agent: I'll request that transfer for you.
+       [calls request_transfer with to="EQD...abc", amountNano="500000000"]
+
+       Transfer request created (ID: abc-123).
+       Please approve it in your Agent Gateway dashboard.
+
+You: Is it confirmed?
+
+Agent: [calls get_request_status with id="abc-123"]
+       Yes, the transfer was confirmed and signed by the wallet.</code></pre>
+    </div>
+  </div>
+
+  <footer class="site-footer">
+    <div class="left">&copy; 2026 Agent Gateway &middot; Built on <svg viewBox="12 15 32 30" fill="none" xmlns="http://www.w3.org/2000/svg" style="display:inline-block;height:14px;width:14px;vertical-align:middle"><path d="M37.5603 15.6277H18.4386C14.9228 15.6277 12.6944 19.4202 14.4632 22.4861L26.2644 42.9409C27.0345 44.2765 28.9644 44.2765 29.7345 42.9409L41.5381 22.4861C43.3045 19.4251 41.0761 15.6277 37.5627 15.6277H37.5603ZM26.2548 36.8068L23.6847 31.8327L17.4833 20.7414C17.0742 20.0315 17.5795 19.1218 18.4362 19.1218H26.2524V36.8092L26.2548 36.8068ZM38.5108 20.739L32.3118 31.8351L29.7417 36.8068V19.1194H37.5579C38.4146 19.1194 38.9199 20.0291 38.5108 20.739Z" fill="currentColor"></path></svg> TON</div>
+    <div class="right">
+      <a href="/docs.html">Docs</a>
+      <a href="/skills.html">Skill</a>
+      <a href="https://api.tongateway.ai/docs" target="_blank">API</a>
+      <a href="/app.html">Dashboard</a>
+    </div>
+  </footer>
+
+  <script>
+    function copyBlock(btn) {
+      const code = btn.closest('pre').querySelector('code');
+      navigator.clipboard.writeText(code.textContent).then(() => {
+        btn.textContent = 'Copied!';
+        btn.classList.add('copied');
+        setTimeout(() => { btn.textContent = 'Copy'; btn.classList.remove('copied'); }, 2000);
+      });
+    }
+  </script>
+</body>
+</html>

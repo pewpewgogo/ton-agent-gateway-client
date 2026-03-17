@@ -1,0 +1,169 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Agent Gateway — Claude Code</title>
+  <link rel="stylesheet" href="../shared.css">
+  <link rel="stylesheet" href="shared-skill.css">
+</head>
+<body>
+  <div class="grid-bg"></div>
+
+  <nav class="site-nav">
+    <a href="/" class="nav-logo"><span>&gt;</span> agent_gateway</a>
+    <div class="nav-links">
+      <a href="/docs.html">Docs</a>
+      <a href="/skills.html" class="active">Skill</a>
+      <a href="https://api.tongateway.ai/docs" target="_blank">API</a>
+      <a href="/app.html" class="nav-cta">Open Dashboard</a>
+    </div>
+  </nav>
+
+  <div class="page-content">
+    <a href="/skills.html" class="back-link">&larr; All Skills</a>
+
+    <div class="skill-hero">
+      <div class="skill-hero-icon" style="background:rgba(212,165,116,0.08)">
+        <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="#d4a574" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2L2 7l10 5 10-5-10-5z"/><path d="M2 17l10 5 10-5"/><path d="M2 12l10 5 10-5"/></svg>
+      </div>
+      <div>
+        <h1 class="page-title">Claude Code</h1>
+        <p class="page-desc">Two ways to connect: MCP server (recommended) or skill file.</p>
+      </div>
+    </div>
+
+    <!-- Option 1: MCP Server -->
+    <div class="card">
+      <div class="card-label">Option 1 — Recommended</div>
+      <h2>MCP Server</h2>
+      <p>Gives Claude native tool access to Agent Gateway. No HTTP knowledge needed.</p>
+
+      <div class="step">
+        <span class="step-num">1</span><span class="step-title">Get your token</span>
+        <div class="step-body">
+          <p>Connect your wallet on the <a href="/app.html">dashboard</a> and create a token for your agent.</p>
+        </div>
+      </div>
+      <div class="step">
+        <span class="step-num">2</span><span class="step-title">Install the MCP server</span>
+        <div class="step-body">
+<pre><code>npm install -g @tongateway/mcp</code><button class="copy-btn" onclick="copyBlock(this)">Copy</button></pre>
+        </div>
+      </div>
+      <div class="step">
+        <span class="step-num">3</span><span class="step-title">Add to Claude Code settings</span>
+        <div class="step-body">
+          <p>Add to <code>.claude/settings.json</code> in your project:</p>
+<pre><code>{
+  "mcpServers": {
+    "agent-gateway": {
+      "command": "agent-gateway-mcp",
+      "env": {
+        "AGENT_GATEWAY_TOKEN": "YOUR_TOKEN_HERE",
+        "AGENT_GATEWAY_API_URL": "https://api.tongateway.ai"
+      }
+    }
+  }
+}</code><button class="copy-btn" onclick="copyBlock(this)">Copy</button></pre>
+          <p>Paste your token from step 1.</p>
+        </div>
+      </div>
+      <div class="step">
+        <span class="step-num">4</span><span class="step-title">Use it</span>
+        <div class="step-body">
+          <p>Just say <code>"send 1 TON to EQD...abc"</code> and Claude will use the MCP tools automatically.</p>
+        </div>
+      </div>
+    </div>
+
+    <!-- Option 2: Skill File -->
+    <div class="card">
+      <div class="card-label">Option 2</div>
+      <h2>Skill File</h2>
+      <p>A markdown file that teaches Claude the full Agent Gateway API. Drop it into your project.</p>
+
+      <div class="step">
+        <span class="step-num">1</span><span class="step-title">Create the skills directory</span>
+        <div class="step-body">
+<pre><code>mkdir -p .claude/skills</code><button class="copy-btn" onclick="copyBlock(this)">Copy</button></pre>
+        </div>
+      </div>
+      <div class="step">
+        <span class="step-num">2</span><span class="step-title">Download the skill</span>
+        <div class="step-body">
+<pre><code>curl -o .claude/skills/agent-gateway.md \
+  https://tongateway.ai/agent-gateway.md</code><button class="copy-btn" onclick="copyBlock(this)">Copy</button></pre>
+        </div>
+      </div>
+      <div class="step">
+        <span class="step-num">3</span><span class="step-title">Use it</span>
+        <div class="step-body">
+          <p>Claude Code will automatically detect the skill. Ask it to <code>/agent-gateway</code> or just say "send TON" and it will know what to do.</p>
+        </div>
+      </div>
+    </div>
+
+    <!-- Tools -->
+    <div class="card">
+      <h2>Available Tools</h2>
+      <table>
+        <tr><th>Tool</th><th>Params</th><th>Description</th></tr>
+        <tr>
+          <td><code>request_transfer</code></td>
+          <td><code>to</code>, <code>amountNano</code>, <code>payloadBoc?</code></td>
+          <td>Queue a TON transfer for owner approval</td>
+        </tr>
+        <tr>
+          <td><code>get_request_status</code></td>
+          <td><code>id</code></td>
+          <td>Check if a request was approved, rejected, or pending</td>
+        </tr>
+        <tr>
+          <td><code>list_pending_requests</code></td>
+          <td>&mdash;</td>
+          <td>List all pending transfer requests</td>
+        </tr>
+      </table>
+    </div>
+
+    <!-- Example -->
+    <div class="card">
+      <h2>Example</h2>
+<pre><code>You: Send 0.5 TON to EQD...abc
+
+Agent: I'll request that transfer for you.
+       [calls request_transfer with to="EQD...abc", amountNano="500000000"]
+
+       Transfer request created (ID: abc-123).
+       Please approve it in your Agent Gateway dashboard.
+
+You: Is it confirmed?
+
+Agent: [calls get_request_status with id="abc-123"]
+       Yes, the transfer was confirmed and signed by the wallet.</code></pre>
+    </div>
+  </div>
+
+  <footer class="site-footer">
+    <div class="left">&copy; 2026 Agent Gateway &middot; Built on <svg viewBox="12 15 32 30" fill="none" xmlns="http://www.w3.org/2000/svg" style="display:inline-block;height:14px;width:14px;vertical-align:middle"><path d="M37.5603 15.6277H18.4386C14.9228 15.6277 12.6944 19.4202 14.4632 22.4861L26.2644 42.9409C27.0345 44.2765 28.9644 44.2765 29.7345 42.9409L41.5381 22.4861C43.3045 19.4251 41.0761 15.6277 37.5627 15.6277H37.5603ZM26.2548 36.8068L23.6847 31.8327L17.4833 20.7414C17.0742 20.0315 17.5795 19.1218 18.4362 19.1218H26.2524V36.8092L26.2548 36.8068ZM38.5108 20.739L32.3118 31.8351L29.7417 36.8068V19.1194H37.5579C38.4146 19.1194 38.9199 20.0291 38.5108 20.739Z" fill="currentColor"></path></svg> TON</div>
+    <div class="right">
+      <a href="/docs.html">Docs</a>
+      <a href="/skills.html">Skill</a>
+      <a href="https://api.tongateway.ai/docs" target="_blank">API</a>
+      <a href="/app.html">Dashboard</a>
+    </div>
+  </footer>
+
+  <script>
+    function copyBlock(btn) {
+      const code = btn.closest('pre').querySelector('code');
+      navigator.clipboard.writeText(code.textContent).then(() => {
+        btn.textContent = 'Copied!';
+        btn.classList.add('copied');
+        setTimeout(() => { btn.textContent = 'Copy'; btn.classList.remove('copied'); }, 2000);
+      });
+    }
+  </script>
+</body>
+</html>
