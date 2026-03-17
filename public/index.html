@@ -394,42 +394,93 @@
     }
 
     /* --- Integrations --- */
-    .integrations {
-      display: flex;
-      flex-wrap: wrap;
-      gap: 12px;
-      margin-top: 24px;
+
+    /* --- Integration cards --- */
+    .integration-cards {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 16px;
     }
 
-    .integration-chip {
+    @media (max-width: 640px) {
+      .integration-cards { grid-template-columns: 1fr; }
+    }
+
+    .integration-card {
       display: flex;
-      align-items: center;
-      gap: 10px;
+      gap: 20px;
       background: var(--bg-card);
       border: 1px solid var(--border);
-      border-radius: 10px;
-      padding: 14px 20px;
+      border-radius: 12px;
+      padding: 24px;
+      text-decoration: none;
       transition: all 0.3s;
     }
 
-    .integration-chip:hover {
+    .integration-card:hover {
       border-color: var(--border-glow);
       background: var(--bg-card-hover);
+      text-decoration: none;
+      transform: translateY(-2px);
     }
 
-    .integration-chip span:first-child {
-      font-size: 20px;
+    .integration-card-icon {
+      width: 48px;
+      height: 48px;
+      border-radius: 12px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex-shrink: 0;
     }
 
-    .integration-chip .name {
-      font-size: 14px;
-      font-weight: 500;
+    .integration-card-body h3 {
+      font-size: 16px;
+      font-weight: 600;
       color: var(--text-bright);
+      margin-bottom: 6px;
     }
 
-    .integration-chip .desc {
+    .integration-card-body p {
+      font-size: 13px;
+      color: var(--text);
+      line-height: 1.6;
+      margin-bottom: 10px;
+    }
+
+    .integration-card-body code {
       font-size: 12px;
+      background: rgba(255,255,255,0.04);
+      border: 1px solid var(--border);
+      padding: 1px 5px;
+      border-radius: 3px;
       color: var(--text-dim);
+    }
+
+    .integration-card-link {
+      font-size: 13px;
+      font-weight: 500;
+      color: var(--accent);
+    }
+
+    .integration-card:hover .integration-card-link {
+      text-decoration: underline;
+    }
+
+    .integration-fallback {
+      margin-top: 24px;
+      text-align: center;
+      font-size: 14px;
+      color: var(--text-dim);
+      padding: 20px;
+      border: 1px dashed var(--border);
+      border-radius: 10px;
+      background: rgba(255,255,255,0.01);
+    }
+
+    .integration-fallback a {
+      color: var(--accent);
+      font-weight: 500;
     }
 
     /* --- CTA --- */
@@ -501,9 +552,8 @@
     <a href="/" class="nav-logo"><span>&gt;</span> agent_gateway</a>
     <div class="nav-links">
       <a href="/docs.html">Docs</a>
-      <a href="/skills.html">Skills</a>
+      <a href="/skills.html">Skill</a>
       <a href="https://api.tongateway.ai/docs" target="_blank">API</a>
-      <a href="https://github.com/pewpewgogo/ton-agent-gateway" target="_blank">GitHub</a>
       <a href="/app.html" class="nav-cta">Open Dashboard</a>
     </div>
   </nav>
@@ -512,7 +562,7 @@
   <section class="hero">
     <div class="hero-glow"></div>
     <div class="hero-badge">Live on TON Mainnet</div>
-    <h1>Give your agents access<br>to <span class="gradient">blockchain</span></h1>
+    <h1>Let AI agents move <span class="gradient">TON</span><br>with human approval</h1>
     <p class="hero-sub">Your agent requests transfers. You review and sign them. No private keys exposed, no blind trust — just a clean API between AI and your wallet.</p>
     <div class="hero-actions">
       <a href="/app.html" class="btn btn-primary">Open Dashboard</a>
@@ -559,53 +609,91 @@
     </div>
   </section>
 
+  <!-- Features -->
+  <section class="section reveal">
+    <div class="section-label">Why Agent Gateway</div>
+    <div class="section-title">Built for the AI-agent era</div>
+    <div class="features">
+      <div class="feature">
+        <div class="feature-icon" style="background:rgba(59,130,246,0.08)">&#128274;</div>
+        <h3>Zero key exposure</h3>
+        <p>Agents never touch your private keys. They can only queue transfer requests that you sign.</p>
+      </div>
+      <div class="feature">
+        <div class="feature-icon" style="background:rgba(52,211,153,0.08)">&#9201;</div>
+        <h3>Auto-expiring requests</h3>
+        <p>Pending requests expire after 5 minutes. Tokens live until revoked. Clean control.</p>
+      </div>
+      <div class="feature">
+        <div class="feature-icon" style="background:rgba(251,191,36,0.08)">&#128736;</div>
+        <h3>MCP + REST API</h3>
+        <p>Native MCP server for Claude Code and Cursor. REST API with Swagger docs for everything else.</p>
+      </div>
+      <div class="feature">
+        <div class="feature-icon" style="background:rgba(248,113,113,0.08)">&#128203;</div>
+        <h3>Session isolation</h3>
+        <p>Each token has a unique session. Multiple agents, each with their own scope — no cross-contamination.</p>
+      </div>
+    </div>
+  </section>
+
   <!-- Integrations -->
   <section class="section reveal">
-    <div class="section-label">Skills</div>
+    <div class="section-label">Integrations</div>
     <div class="section-title">Works with your stack</div>
-    <div class="integrations">
-      <div class="integration-chip">
-        <span>&#9889;</span>
-        <div>
-          <div class="name">Claude Code</div>
-          <div class="desc">MCP server + skill file</div>
+    <div class="integration-cards">
+      <a href="/skills.html" class="integration-card">
+        <div class="integration-card-icon" style="background:rgba(212,165,116,0.08)">
+          <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#d4a574" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2L2 7l10 5 10-5-10-5z"/><path d="M2 17l10 5 10-5"/><path d="M2 12l10 5 10-5"/></svg>
         </div>
-      </div>
-      <div class="integration-chip">
-        <span>&#128065;</span>
-        <div>
-          <div class="name">Cursor / Windsurf</div>
-          <div class="desc">MCP server</div>
+        <div class="integration-card-body">
+          <h3>Claude Code</h3>
+          <p>Install the MCP server or drop in a skill file. Claude will know the full API and request transfers on your behalf.</p>
+          <span class="integration-card-link">Setup guide &rarr;</span>
         </div>
-      </div>
-      <div class="integration-chip">
-        <span>&#129302;</span>
-        <div>
-          <div class="name">OpenClaw</div>
-          <div class="desc">Skill file</div>
+      </a>
+      <a href="/skills.html" class="integration-card">
+        <div class="integration-card-icon" style="background:rgba(59,130,246,0.08)">
+          <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#3b82f6" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M13 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V9z"/><polyline points="13 2 13 9 20 9"/></svg>
         </div>
-      </div>
-      <div class="integration-chip">
-        <span>&#128013;</span>
-        <div>
-          <div class="name">Python</div>
-          <div class="desc">REST API</div>
+        <div class="integration-card-body">
+          <h3>Cursor</h3>
+          <p>Add the MCP server to your Cursor settings. Your AI assistant gets native access to Agent Gateway tools.</p>
+          <span class="integration-card-link">Setup guide &rarr;</span>
         </div>
-      </div>
-      <div class="integration-chip">
-        <span>&#9898;</span>
-        <div>
-          <div class="name">Node.js</div>
-          <div class="desc">REST API</div>
+      </a>
+      <a href="/skills.html" class="integration-card">
+        <div class="integration-card-icon" style="background:rgba(52,211,153,0.08)">
+          <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#34d399" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="3" width="20" height="14" rx="2" ry="2"/><line x1="8" y1="21" x2="16" y2="21"/><line x1="12" y1="17" x2="12" y2="21"/></svg>
         </div>
-      </div>
-      <div class="integration-chip">
-        <span>&#128268;</span>
-        <div>
-          <div class="name">Any MCP Client</div>
-          <div class="desc">stdio transport</div>
+        <div class="integration-card-body">
+          <h3>Codex</h3>
+          <p>Connect via MCP server. Codex agents can request TON transfers through the same protocol.</p>
+          <span class="integration-card-link">Setup guide &rarr;</span>
         </div>
-      </div>
+      </a>
+      <a href="/skills.html" class="integration-card">
+        <div class="integration-card-icon" style="background:rgba(192,132,252,0.08)">
+          <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#c084fc" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
+        </div>
+        <div class="integration-card-body">
+          <h3>MCP Server</h3>
+          <p>Works with any MCP-compatible client via stdio transport. One <code>npm install</code> and you're set.</p>
+          <span class="integration-card-link">Setup guide &rarr;</span>
+        </div>
+      </a>
+    </div>
+    <div class="integration-fallback">
+      Don't see your tool? Just use the <a href="https://api.tongateway.ai/docs" target="_blank">REST API</a> directly — full Swagger docs included.
+    </div>
+  </section>
+
+  <!-- CTA -->
+  <section class="cta-section reveal">
+    <div class="cta-box">
+      <h2>Ready to give your agent a wallet?</h2>
+      <p>Connect your wallet, create a token, and let your AI agent start requesting transfers in under a minute.</p>
+      <a href="/app.html" class="btn btn-primary">Launch Dashboard</a>
     </div>
   </section>
 
@@ -614,9 +702,8 @@
     <div class="left">&copy; 2026 Agent Gateway &middot; TON Blockchain</div>
     <div class="right">
       <a href="/docs.html">Docs</a>
-      <a href="/skills.html">Skills</a>
+      <a href="/skills.html">Skill</a>
       <a href="https://api.tongateway.ai/docs" target="_blank">API</a>
-      <a href="https://github.com/pewpewgogo/ton-agent-gateway" target="_blank">GitHub</a>
       <a href="/app.html">Dashboard</a>
     </div>
   </footer>
