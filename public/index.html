@@ -345,54 +345,6 @@
       .step-connector { display: none; }
     }
 
-    /* --- Features --- */
-    .features {
-      display: grid;
-      grid-template-columns: repeat(2, 1fr);
-      gap: 16px;
-    }
-
-    @media (max-width: 640px) {
-      .features { grid-template-columns: 1fr; }
-    }
-
-    .feature {
-      background: var(--bg-card);
-      border: 1px solid var(--border);
-      border-radius: 12px;
-      padding: 28px;
-      transition: all 0.3s;
-    }
-
-    .feature:hover {
-      border-color: var(--border-glow);
-      background: var(--bg-card-hover);
-    }
-
-    .feature-icon {
-      width: 40px;
-      height: 40px;
-      border-radius: 10px;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      font-size: 18px;
-      margin-bottom: 16px;
-    }
-
-    .feature h3 {
-      font-size: 15px;
-      font-weight: 600;
-      color: var(--text-bright);
-      margin-bottom: 6px;
-    }
-
-    .feature p {
-      font-size: 13px;
-      color: var(--text);
-      line-height: 1.6;
-    }
-
     /* --- Integrations --- */
 
     /* --- Integration cards --- */
@@ -483,49 +435,6 @@
       font-weight: 500;
     }
 
-    /* --- CTA --- */
-    .cta-section {
-      text-align: center;
-      padding: 80px 24px 120px;
-    }
-
-    .cta-box {
-      max-width: 560px;
-      margin: 0 auto;
-      background: var(--bg-card);
-      border: 1px solid var(--border);
-      border-radius: 16px;
-      padding: 48px 40px;
-      position: relative;
-      overflow: hidden;
-    }
-
-    .cta-box::before {
-      content: '';
-      position: absolute;
-      top: 0;
-      left: 0;
-      right: 0;
-      height: 1px;
-      background: linear-gradient(90deg, transparent, var(--accent), transparent);
-    }
-
-    .cta-box h2 {
-      font-size: 24px;
-      font-weight: 600;
-      color: var(--text-bright);
-      margin-bottom: 12px;
-      letter-spacing: -0.02em;
-    }
-
-    .cta-box p {
-      font-size: 14px;
-      color: var(--text);
-      margin-bottom: 28px;
-    }
-
-    .cta-box .btn { font-size: 15px; padding: 14px 32px; }
-
     /* --- Animations --- */
     @keyframes fadeUp {
       from { opacity: 0; transform: translateY(16px); }
@@ -609,37 +518,9 @@
     </div>
   </section>
 
-  <!-- Features -->
+  <!-- Skill -->
   <section class="section reveal">
-    <div class="section-label">Why Agent Gateway</div>
-    <div class="section-title">Built for the AI-agent era</div>
-    <div class="features">
-      <div class="feature">
-        <div class="feature-icon" style="background:rgba(59,130,246,0.08)">&#128274;</div>
-        <h3>Zero key exposure</h3>
-        <p>Agents never touch your private keys. They can only queue transfer requests that you sign.</p>
-      </div>
-      <div class="feature">
-        <div class="feature-icon" style="background:rgba(52,211,153,0.08)">&#9201;</div>
-        <h3>Auto-expiring requests</h3>
-        <p>Pending requests expire after 5 minutes. Tokens live until revoked. Clean control.</p>
-      </div>
-      <div class="feature">
-        <div class="feature-icon" style="background:rgba(251,191,36,0.08)">&#128736;</div>
-        <h3>MCP + REST API</h3>
-        <p>Native MCP server for Claude Code and Cursor. REST API with Swagger docs for everything else.</p>
-      </div>
-      <div class="feature">
-        <div class="feature-icon" style="background:rgba(248,113,113,0.08)">&#128203;</div>
-        <h3>Session isolation</h3>
-        <p>Each token has a unique session. Multiple agents, each with their own scope — no cross-contamination.</p>
-      </div>
-    </div>
-  </section>
-
-  <!-- Integrations -->
-  <section class="section reveal">
-    <div class="section-label">Integrations</div>
+    <div class="section-label">Skill</div>
     <div class="section-title">Works with your stack</div>
     <div class="integration-cards">
       <a href="/skills.html" class="integration-card">
@@ -685,15 +566,6 @@
     </div>
     <div class="integration-fallback">
       Don't see your tool? Just use the <a href="https://api.tongateway.ai/docs" target="_blank">REST API</a> directly — full Swagger docs included.
-    </div>
-  </section>
-
-  <!-- CTA -->
-  <section class="cta-section reveal">
-    <div class="cta-box">
-      <h2>Ready to give your agent a wallet?</h2>
-      <p>Connect your wallet, create a token, and let your AI agent start requesting transfers in under a minute.</p>
-      <a href="/app.html" class="btn btn-primary">Launch Dashboard</a>
     </div>
   </section>
 
