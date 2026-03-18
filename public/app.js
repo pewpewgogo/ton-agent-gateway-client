@@ -291,7 +291,16 @@ async function approve(id, to, amountNano, payloadBoc) {
     poll();
   } catch (e) {
     log('Approve failed: ' + (e.message || 'User rejected'), 'err');
+    // If wallet rejected, also reject in the API to stop retry loop
+    try {
+      await fetch(API_URL + '/v1/safe/tx/' + id + '/reject', {
+        method: 'POST',
+        headers: { Authorization: 'Bearer ' + clientToken },
+      });
+      log('Request auto-rejected after wallet decline');
+    } catch {}
     autoApproveProcessing.delete(id);
+    poll();
   }
 }
 
