@@ -29,120 +29,147 @@
       </div>
       <div>
         <h1 class="page-title">Claude Code</h1>
-        <p class="page-desc">Two ways to connect: MCP server (recommended) or skill file.</p>
+        <p class="page-desc">Give Claude Code access to TON blockchain via MCP server. Two steps.</p>
       </div>
     </div>
 
-    <!-- Option 1: MCP Server -->
+    <!-- How it works -->
+    <div class="note" style="margin-bottom:24px">
+      <strong>MCP server</strong> gives Claude real tools (<code>request_transfer</code>, <code>get_request_status</code>, etc.) to interact with Agent Gateway. Without it, Claude has no way to call the API.<br>
+      <strong>Skill file</strong> (optional) adds context — amount conversion, status meanings, best practices.
+    </div>
+
+    <!-- Setup -->
     <div class="card">
-      <div class="card-label">Option 1 — Recommended</div>
-      <h2>MCP Server</h2>
-      <p>Gives Claude native tool access to Agent Gateway. No HTTP knowledge needed.</p>
+      <h2>Setup</h2>
 
       <div class="step">
-        <span class="step-num">1</span><span class="step-title">Get your token</span>
+        <span class="step-num">1</span><span class="step-title">Generate your token</span>
         <div class="step-body">
           <p>Generate a token right here or on the <a href="/app.html">dashboard</a>.</p>
           <div class="token-widget"></div>
         </div>
       </div>
+
       <div class="step">
-        <span class="step-num">2</span><span class="step-title">Install the MCP server</span>
+        <span class="step-num">2</span><span class="step-title">Add MCP server to Claude Code</span>
         <div class="step-body">
-<pre><code>npm install -g @tongateway/mcp</code><button class="copy-btn" onclick="copyBlock(this)">Copy</button></pre>
-        </div>
-      </div>
-      <div class="step">
-        <span class="step-num">3</span><span class="step-title">Add to Claude Code settings</span>
-        <div class="step-body">
-          <p>Add to <code>.claude/settings.json</code> in your project:</p>
-<pre><code>{
-  "mcpServers": {
-    "agent-gateway": {
-      "command": "agent-gateway-mcp",
-      "env": {
-        "AGENT_GATEWAY_TOKEN": "YOUR_TOKEN_HERE",
-        "AGENT_GATEWAY_API_URL": "https://api.tongateway.ai"
-      }
-    }
+          <p>Run this single command in your terminal:</p>
+<pre><code data-token-placeholder>claude mcp add-json agent-gateway '{
+  "command": "npx",
+  "args": ["-y", "@tongateway/mcp"],
+  "env": {
+    "AGENT_GATEWAY_TOKEN": "YOUR_TOKEN_HERE",
+    "AGENT_GATEWAY_API_URL": "https://api.tongateway.ai"
   }
-}</code><button class="copy-btn" onclick="copyBlock(this)">Copy</button></pre>
-          <p>Paste your token from step 1.</p>
+}' --scope user</code><button class="copy-btn" onclick="copyBlock(this)">Copy</button></pre>
+          <p class="hint-dim">This installs and configures the MCP server globally for your user. No <code>npm install</code> needed — <code>npx</code> handles it.</p>
         </div>
       </div>
+
       <div class="step">
-        <span class="step-num">4</span><span class="step-title">Use it</span>
+        <span class="step-num">3</span><span class="step-title">Done — try it</span>
         <div class="step-body">
-          <p>Just say <code>"send 1 TON to EQD...abc"</code> and Claude will use the MCP tools automatically.</p>
+          <p>Restart Claude Code and say:</p>
+<pre><code>Send 0.5 TON to EQD...abc</code></pre>
+          <p>Claude will call <code>request_transfer</code> automatically. Approve it in your <a href="/app.html">dashboard</a>.</p>
         </div>
       </div>
     </div>
 
-    <!-- Option 2: Skill File -->
-    <div class="card">
-      <div class="card-label">Option 2</div>
-      <h2>Skill File</h2>
-      <p>A markdown file that teaches Claude the full Agent Gateway API. Drop it into your project.</p>
-
-      <div class="step">
-        <span class="step-num">1</span><span class="step-title">Create the skills directory</span>
-        <div class="step-body">
-<pre><code>mkdir -p .claude/skills</code><button class="copy-btn" onclick="copyBlock(this)">Copy</button></pre>
-        </div>
-      </div>
-      <div class="step">
-        <span class="step-num">2</span><span class="step-title">Download the skill</span>
-        <div class="step-body">
-<pre><code>curl -o .claude/skills/agent-gateway.md \
-  https://tongateway.ai/agent-gateway.md</code><button class="copy-btn" onclick="copyBlock(this)">Copy</button></pre>
-        </div>
-      </div>
-      <div class="step">
-        <span class="step-num">3</span><span class="step-title">Use it</span>
-        <div class="step-body">
-          <p>Claude Code will automatically detect the skill. Ask it to <code>/agent-gateway</code> or just say "send TON" and it will know what to do.</p>
-        </div>
-      </div>
-    </div>
-
-    <!-- Tools -->
+    <!-- Tools Reference -->
     <div class="card">
       <h2>Available Tools</h2>
+      <p>These tools become available to Claude after connecting the MCP server:</p>
       <table>
-        <tr><th>Tool</th><th>Params</th><th>Description</th></tr>
+        <tr><th>Tool</th><th>Params</th><th>What it does</th></tr>
         <tr>
           <td><code>request_transfer</code></td>
-          <td><code>to</code>, <code>amountNano</code>, <code>payloadBoc?</code></td>
-          <td>Queue a TON transfer for owner approval</td>
+          <td><code>to</code>, <code>amountNano</code></td>
+          <td>Queue a TON transfer. Owner approves in dashboard.</td>
         </tr>
         <tr>
           <td><code>get_request_status</code></td>
           <td><code>id</code></td>
-          <td>Check if a request was approved, rejected, or pending</td>
+          <td>Check if approved, rejected, pending, or expired.</td>
         </tr>
         <tr>
           <td><code>list_pending_requests</code></td>
           <td>&mdash;</td>
-          <td>List all pending transfer requests</td>
+          <td>List all pending transfer requests.</td>
         </tr>
       </table>
+      <p class="hint-dim" style="margin-bottom:0"><strong>Amount:</strong> 1 TON = 1,000,000,000 nanoTON. So 0.5 TON = <code>"500000000"</code></p>
     </div>
 
     <!-- Example -->
     <div class="card">
-      <h2>Example</h2>
+      <h2>Example Session</h2>
 <pre><code>You: Send 0.5 TON to EQD...abc
 
-Agent: I'll request that transfer for you.
-       [calls request_transfer with to="EQD...abc", amountNano="500000000"]
+Claude: I'll request that transfer for you.
+        [calls request_transfer → to="EQD...abc", amountNano="500000000"]
 
-       Transfer request created (ID: abc-123).
-       Please approve it in your Agent Gateway dashboard.
+        Transfer request created (ID: abc-123).
+        Please approve it in your Agent Gateway dashboard.
 
 You: Is it confirmed?
 
-Agent: [calls get_request_status with id="abc-123"]
-       Yes, the transfer was confirmed and signed by the wallet.</code></pre>
+Claude: [calls get_request_status → id="abc-123"]
+        Yes, the transfer was confirmed and signed by the wallet.</code></pre>
+    </div>
+
+    <!-- Optional: Skill File -->
+    <div class="card">
+      <div class="card-label">Optional</div>
+      <h2>Skill File</h2>
+      <p>The MCP server is enough for Claude to work. But if you want Claude to have extra context (amount conversion, status meanings, best practices), you can also add the skill file:</p>
+
+<pre><code>curl -o .claude/skills/agent-gateway.md \
+  https://tongateway.ai/agent-gateway.md</code><button class="copy-btn" onclick="copyBlock(this)">Copy</button></pre>
+
+      <details class="skill-details">
+        <summary>View skill file content</summary>
+        <div class="skill-details-body">
+<pre><code>---
+name: agent-gateway
+description: Install and use Agent Gateway — lets your AI agent
+  request TON blockchain transfers that are approved by a human
+  wallet owner via TON Connect
+---
+
+# Agent Gateway Skill
+
+Agent Gateway lets you request TON transfers from a human's wallet.
+You submit transfer requests, the wallet owner approves them.
+
+## Tools
+
+| Tool                   | Description                        |
+|------------------------|------------------------------------|
+| request_transfer       | Queue a TON transfer for approval  |
+| get_request_status     | Check request status by ID         |
+| list_pending_requests  | List all pending requests          |
+
+## Usage
+
+request_transfer({ to: "EQD...addr", amountNano: "1000000000" })
+  1 TON = 1,000,000,000 nanoTON
+
+## Direct HTTP (fallback)
+
+POST https://api.tongateway.ai/v1/safe/tx/transfer
+  Authorization: Bearer TOKEN
+  { "to": "0:dest...", "amountNano": "1000000000" }
+
+## Important
+
+- You cannot sign transactions, only request them
+- Token = session, guard it like a password
+- Requests expire in 5 minutes
+- Tokens don't expire — revoke when no longer needed</code><button class="copy-btn" onclick="copyBlock(this)">Copy</button></pre>
+        </div>
+      </details>
     </div>
   </div>
 

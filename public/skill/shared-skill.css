@@ -124,6 +124,44 @@ td code { font-size: 12px; }
   color: var(--green);
 }
 
+.hint-dim {
+  font-size: 12px;
+  color: var(--text-dim);
+  line-height: 1.5;
+}
+
+.skill-details {
+  margin-top: 16px;
+}
+
+.skill-details summary {
+  font-size: 13px;
+  font-weight: 500;
+  color: var(--accent);
+  cursor: pointer;
+  padding: 8px 0;
+  transition: color 0.2s;
+  list-style: none;
+}
+
+.skill-details summary::-webkit-details-marker { display: none; }
+.skill-details summary::before {
+  content: '+ ';
+  font-family: var(--font-mono);
+}
+
+.skill-details[open] summary::before {
+  content: '- ';
+}
+
+.skill-details summary:hover {
+  color: var(--text-bright);
+}
+
+.skill-details-body {
+  padding-top: 8px;
+}
+
 /* --- Token Widget --- */
 
 .token-widget {

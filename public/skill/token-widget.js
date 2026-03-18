@@ -118,6 +118,10 @@ async function twCreateToken() {
       w.querySelector('.tw-token-value').textContent = data.token;
     });
     twShowState('result');
+    // Update any command blocks that reference the token
+    document.querySelectorAll('[data-token-placeholder]').forEach(el => {
+      el.textContent = el.textContent.replace(/YOUR_TOKEN_HERE/g, data.token);
+    });
   } catch (e) {
     twShowState('connect');
     const widgets = document.querySelectorAll('.token-widget');
