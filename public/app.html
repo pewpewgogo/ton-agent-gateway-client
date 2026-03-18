@@ -38,18 +38,11 @@
       </div>
     </section>
 
-    <section id="pending-section" class="card hidden">
-      <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:8px">
-        <h2 style="margin:0">Pending Requests</h2>
-        <label class="auto-approve-label">
-          <input type="checkbox" id="auto-approve-toggle" onchange="toggleAutoApprove()" checked>
-          <span class="auto-approve-slider"></span>
-          <span class="auto-approve-text">Auto-approve</span>
-        </label>
-      </div>
-      <p class="hint">Requests from your agents. <span id="auto-approve-hint">Click Approve to sign with your wallet.</span></p>
-      <div id="pending-list">
-        <p class="empty">No pending requests</p>
+    <section id="tx-section" class="card hidden">
+      <h2>Transaction Log</h2>
+      <p class="hint">Transfers requested by your agents. Approve them in your wallet app (Tonkeeper).</p>
+      <div id="tx-log-list">
+        <p class="empty">No transactions yet</p>
       </div>
     </section>
 

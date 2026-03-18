@@ -1,12 +1,10 @@
 const API_URL = 'https://api.tongateway.ai';
-const POLL_INTERVAL = 3000;
+const POLL_INTERVAL = 5000;
 
 let clientToken = null;
 let clientSessionId = null;
 let walletAddress = null;
 let pollTimer = null;
-let autoApprove = true;
-let autoApproveProcessing = new Set(); // track IDs currently being auto-approved
 
 // --- TON Connect ---
 
@@ -20,13 +18,14 @@ tonConnectUI.onStatusChange(async (wallet) => {
     walletAddress = wallet.account.address;
     log('Wallet connected: ' + shortAddr(walletAddress));
     await initSession();
+    await persistTcSession();
   } else {
     walletAddress = null;
     clientToken = null;
     clientSessionId = null;
     stopPolling();
     hide('auth-section');
-    hide('pending-section');
+    hide('tx-section');
     log('Wallet disconnected');
   }
 });
@@ -47,7 +46,7 @@ async function initSession() {
     clientToken = data.token;
     clientSessionId = data.sessionId;
     show('auth-section');
-    show('pending-section');
+    show('tx-section');
     startPolling();
     await loadSessions();
     log('Connected', 'ok');
@@ -55,6 +54,46 @@ async function initSession() {
     log('Auth error: ' + e.message, 'err');
   }
 }
+
+// --- Persist TON Connect session to server ---
+
+async function persistTcSession() {
+  try {
+    const connector = tonConnectUI.connector;
+    if (!connector) return;
+
+    // Access the internal bridge provider session
+    const provider = connector._provider;
+    if (!provider || !provider.session) return;
+
+    const session = provider.session;
+    if (!session.sessionCrypto || !session.walletPublicKey) return;
+
+    const crypto = session.sessionCrypto;
+    const secretKeyHex = Array.from(crypto.keyPair.secretKey).map(b => b.toString(16).padStart(2, '0')).join('');
+    const publicKeyHex = crypto.sessionId; // already hex
+    const bridgeUrl = provider.gateway?.bridgeUrl || 'https://bridge.tonapi.io/bridge';
+
+    await fetch(API_URL + '/v1/auth/connect', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        Authorization: 'Bearer ' + clientToken,
+      },
+      body: JSON.stringify({
+        secretKey: secretKeyHex,
+        publicKey: publicKeyHex,
+        walletPublicKey: session.walletPublicKey,
+        bridgeUrl: bridgeUrl,
+      }),
+    });
+    log('Wallet session saved for server-side signing', 'ok');
+  } catch (e) {
+    console.error('Failed to persist TC session:', e);
+  }
+}
+
+// --- Token Management ---
 
 async function createToken() {
   const labelInput = document.getElementById('token-label');
@@ -72,7 +111,6 @@ async function createToken() {
     log('Token "' + label + '" created', 'ok');
 
     showNewToken(data.token, data.label, data.sessionId);
-    // KV list is eventually consistent — retry after a short delay
     await loadSessions();
     setTimeout(() => loadSessions(), 1500);
   } catch (e) {
@@ -135,13 +173,6 @@ document.getElementById('token-label').addEventListener('keydown', (e) => {
   if (e.key === 'Enter') createToken();
 });
 
-// --- Auto-approve toggle ---
-
-function toggleAutoApprove() {
-  autoApprove = document.getElementById('auto-approve-toggle').checked;
-  log(autoApprove ? 'Auto-approve ON — requests will be sent to wallet automatically' : 'Auto-approve OFF', autoApprove ? 'ok' : '');
-}
-
 // --- Render Tokens ---
 
 function showNewToken(token, label, sid) {
@@ -201,7 +232,7 @@ function renderSessions(sessions) {
   }
 }
 
-// --- Polling ---
+// --- Polling (Transaction Log) ---
 
 function startPolling() {
   stopPolling();
@@ -219,103 +250,40 @@ function stopPolling() {
 async function poll() {
   if (!clientToken) return;
   try {
-    const res = await fetch(API_URL + '/v1/safe/tx/pending', {
+    const res = await fetch(API_URL + '/v1/auth/tx-log', {
       headers: { Authorization: 'Bearer ' + clientToken },
     });
     if (!res.ok) return;
     const data = await res.json();
-    renderPending(data.requests);
-
-    // Auto-approve: send new requests to wallet automatically
-    if (autoApprove && data.requests.length > 0) {
-      for (const r of data.requests) {
-        if (!autoApproveProcessing.has(r.id)) {
-          autoApproveProcessing.add(r.id);
-          log('Auto-approving: ' + formatNano(r.amountNano) + ' TON to ' + shortAddr(r.to));
-          approve(r.id, r.to, r.amountNano, r.payloadBoc || null);
-        }
-      }
-    }
+    renderTxLog(data.transactions || []);
   } catch {
     // silent
   }
 }
 
-// --- Render Pending ---
+// --- Render Transaction Log ---
 
-function renderPending(requests) {
-  const list = document.getElementById('pending-list');
-  if (!requests.length) {
-    list.innerHTML = '<p class="empty">No pending requests</p>';
+function renderTxLog(transactions) {
+  const list = document.getElementById('tx-log-list');
+  if (!list) return;
+  if (!transactions.length) {
+    list.innerHTML = '<p class="empty">No transactions yet. Create a token and use the API or MCP server to request transfers.</p>';
     return;
   }
-  list.innerHTML = requests.map((r) => `
-    <div class="pending-card" data-id="${r.id}">
-      <div class="row"><span class="label">To</span><span class="value">${shortAddr(r.to)}</span></div>
-      <div class="row"><span class="label">Amount</span><span class="value">${formatNano(r.amountNano)} TON</span></div>
-      <div class="row"><span class="label">Expires</span><span class="value">${timeLeft(r.expiresAt)}</span></div>
-      <div class="actions">
-        <button onclick="approve('${r.id}', '${r.to}', '${r.amountNano}', ${r.payloadBoc ? "'" + r.payloadBoc + "'" : 'null'})">Approve</button>
-        <button class="reject" onclick="reject('${r.id}')">Reject</button>
+  list.innerHTML = transactions.map(tx => {
+    const statusClass = tx.status === 'confirmed' ? 'ok'
+      : tx.status === 'rejected' ? 'err'
+      : tx.status === 'expired' ? 'dim'
+      : '';
+    return `
+      <div class="tx-card">
+        <div class="row"><span class="label">To</span><span class="value">${shortAddr(tx.to)}</span></div>
+        <div class="row"><span class="label">Amount</span><span class="value">${formatNano(tx.amountNano)} TON</span></div>
+        <div class="row"><span class="label">Status</span><span class="value status-${statusClass}">${tx.status}</span></div>
+        <div class="row"><span class="label">Time</span><span class="value">${timeAgo(tx.createdAt)}</span></div>
       </div>
-    </div>
-  `).join('');
-}
-
-// --- Actions ---
-
-async function approve(id, to, amountNano, payloadBoc) {
-  try {
-    log('Sending to wallet for signing...');
-    const message = { address: to, amount: amountNano };
-    if (payloadBoc) message.payload = payloadBoc;
-
-    const result = await tonConnectUI.sendTransaction({
-      validUntil: Math.floor(Date.now() / 1000) + 300,
-      messages: [message],
-    });
-
-    log('Transaction signed by wallet', 'ok');
-
-    await fetch(API_URL + '/v1/safe/tx/' + id + '/confirm', {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-        Authorization: 'Bearer ' + clientToken,
-      },
-      body: JSON.stringify({ txHash: result.boc }),
-    });
-
-    log('Request confirmed', 'ok');
-    autoApproveProcessing.delete(id);
-    poll();
-  } catch (e) {
-    log('Approve failed: ' + (e.message || 'User rejected'), 'err');
-    // If wallet rejected, also reject in the API to stop retry loop
-    try {
-      await fetch(API_URL + '/v1/safe/tx/' + id + '/reject', {
-        method: 'POST',
-        headers: { Authorization: 'Bearer ' + clientToken },
-      });
-      log('Request auto-rejected after wallet decline');
-    } catch {}
-    autoApproveProcessing.delete(id);
-    poll();
-  }
-}
-
-async function reject(id) {
-  try {
-    await fetch(API_URL + '/v1/safe/tx/' + id + '/reject', {
-      method: 'POST',
-      headers: { Authorization: 'Bearer ' + clientToken },
-    });
-    log('Request rejected');
-    autoApproveProcessing.delete(id);
-    poll();
-  } catch (e) {
-    log('Reject failed: ' + e.message, 'err');
-  }
+    `;
+  }).join('');
 }
 
 // --- Helpers ---
@@ -329,12 +297,6 @@ function shortAddr(addr) {
 function formatNano(nano) {
   return (BigInt(nano) / 1000000000n).toString() + '.' +
     (BigInt(nano) % 1000000000n).toString().padStart(9, '0').replace(/0+$/, '') || '0';
-}
-
-function timeLeft(expiresAt) {
-  const sec = Math.max(0, Math.floor((expiresAt - Date.now()) / 1000));
-  const min = Math.floor(sec / 60);
-  return min > 0 ? min + 'm ' + (sec % 60) + 's' : sec + 's';
 }
 
 function timeAgo(ts) {

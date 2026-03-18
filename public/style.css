@@ -59,26 +59,28 @@ button:hover:not(:disabled) {
   background: #4f8ff7;
 }
 
-.pending-card {
+/* --- Transaction Log --- */
+
+.tx-card {
   background: var(--bg);
   border: 1px solid var(--border);
   border-radius: 8px;
-  padding: 16px;
-  margin-bottom: 8px;
+  padding: 14px 16px;
+  margin-bottom: 6px;
 }
 
-.pending-card .row {
+.tx-card .row {
   display: flex;
   justify-content: space-between;
   font-size: 13px;
-  margin-bottom: 4px;
+  margin-bottom: 3px;
 }
 
-.pending-card .label {
+.tx-card .label {
   color: var(--text-dim);
 }
 
-.pending-card .value {
+.tx-card .value {
   color: var(--text-bright);
   font-family: var(--font-mono);
   font-size: 12px;
@@ -87,16 +89,9 @@ button:hover:not(:disabled) {
   text-overflow: ellipsis;
 }
 
-.pending-card .actions {
-  display: flex;
-  gap: 8px;
-  margin-top: 12px;
-}
-
-.pending-card .actions button.reject {
-  background: var(--border);
-  color: var(--red);
-}
+.status-ok { color: var(--green) !important; }
+.status-err { color: var(--red) !important; }
+.status-dim { color: var(--text-dim) !important; }
 
 .empty {
   text-align: center;
@@ -248,60 +243,6 @@ button:hover:not(:disabled) {
   font-size: 12px;
   color: var(--amber);
   margin-bottom: 10px;
-}
-
-/* --- Auto-approve toggle --- */
-
-.auto-approve-label {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  cursor: pointer;
-  user-select: none;
-}
-
-.auto-approve-label input {
-  display: none;
-}
-
-.auto-approve-slider {
-  width: 36px;
-  height: 20px;
-  background: var(--border);
-  border-radius: 10px;
-  position: relative;
-  transition: background 0.2s;
-}
-
-.auto-approve-slider::after {
-  content: '';
-  position: absolute;
-  top: 2px;
-  left: 2px;
-  width: 16px;
-  height: 16px;
-  background: var(--text-dim);
-  border-radius: 50%;
-  transition: all 0.2s;
-}
-
-.auto-approve-label input:checked + .auto-approve-slider {
-  background: var(--accent);
-}
-
-.auto-approve-label input:checked + .auto-approve-slider::after {
-  left: 18px;
-  background: #fff;
-}
-
-.auto-approve-text {
-  font-size: 12px;
-  color: var(--text-dim);
-  font-weight: 500;
-}
-
-.auto-approve-label input:checked ~ .auto-approve-text {
-  color: var(--accent);
 }
 
 button.revoke-all {
