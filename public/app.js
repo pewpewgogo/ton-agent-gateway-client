@@ -72,7 +72,9 @@ async function createToken() {
     log('Token "' + label + '" created', 'ok');
 
     showNewToken(data.token, data.label, data.sessionId);
+    // KV list is eventually consistent — retry after a short delay
     await loadSessions();
+    setTimeout(() => loadSessions(), 1500);
   } catch (e) {
     log('Create token error: ' + e.message, 'err');
   }
@@ -106,6 +108,7 @@ async function revokeToken(sid, label) {
     if (!res.ok) throw new Error(data.error || 'Failed');
     log('Token "' + label + '" revoked', 'ok');
     await loadSessions();
+    setTimeout(() => loadSessions(), 1500);
   } catch (e) {
     log('Revoke error: ' + e.message, 'err');
   }
@@ -121,6 +124,7 @@ async function revokeAll() {
     if (!res.ok) throw new Error(data.error || 'Failed');
     log('Revoked ' + data.revoked + ' token(s)', 'ok');
     await loadSessions();
+    setTimeout(() => loadSessions(), 1500);
   } catch (e) {
     log('Revoke all error: ' + e.message, 'err');
   }
