@@ -4,6 +4,7 @@
 const API_URL = 'https://api.tongateway.ai';
 let twTonConnect = null;
 let twWalletAddress = null;
+let twReady = false;
 
 function initTokenWidget() {
   const widgets = document.querySelectorAll('.token-widget');
@@ -28,43 +29,70 @@ function initTokenWidget() {
       </div>
     `;
   });
+
+  // Initialize TON Connect early so it restores session from localStorage
+  twTonConnect = new TON_CONNECT_UI.TonConnectUI({
+    manifestUrl: window.location.origin + '/tonconnect-manifest.json',
+  });
+
+  // Listen for restored session
+  twTonConnect.onStatusChange((wallet) => {
+    if (wallet) {
+      twWalletAddress = wallet.account.address;
+      twReady = true;
+      // Update button text to show wallet is already connected
+      widgets.forEach(w => {
+        const btn = w.querySelector('.tw-connect .tw-btn');
+        if (btn && !w.querySelector('.tw-result:not(.tw-hidden)')) {
+          btn.textContent = 'Generate Token';
+        }
+      });
+    } else {
+      twWalletAddress = null;
+      twReady = false;
+    }
+  });
+}
+
+function twShowState(state) {
+  const widgets = document.querySelectorAll('.token-widget');
+  widgets.forEach(w => {
+    w.querySelector('.tw-connect').classList.toggle('tw-hidden', state !== 'connect');
+    w.querySelector('.tw-generating').classList.toggle('tw-hidden', state !== 'generating');
+    w.querySelector('.tw-result').classList.toggle('tw-hidden', state !== 'result');
+  });
 }
 
 async function twConnect() {
-  const widgets = document.querySelectorAll('.token-widget');
-  widgets.forEach(w => {
-    w.querySelector('.tw-connect').classList.add('tw-hidden');
-    w.querySelector('.tw-generating').classList.remove('tw-hidden');
-  });
+  twShowState('generating');
 
   try {
-    if (!twTonConnect) {
-      twTonConnect = new TON_CONNECT_UI.TonConnectUI({
-        manifestUrl: window.location.origin + '/tonconnect-manifest.json',
-      });
+    // Already connected (restored from localStorage or same session)
+    if (twTonConnect.connected && twTonConnect.account) {
+      twWalletAddress = twTonConnect.account.address;
+      await twCreateToken();
+      return;
     }
 
-    const connected = twTonConnect.connected;
-    if (!connected) {
-      await twTonConnect.openModal();
-      // Wait for connection
-      await new Promise((resolve, reject) => {
-        const unsub = twTonConnect.onStatusChange((wallet) => {
-          unsub();
-          if (wallet) resolve(wallet);
-          else reject(new Error('Connection cancelled'));
-        });
+    // Not connected — open modal and wait
+    await twTonConnect.openModal();
+    await new Promise((resolve, reject) => {
+      const timeout = setTimeout(() => { reject(new Error('Timeout')); }, 120000);
+      const unsub = twTonConnect.onStatusChange((wallet) => {
+        clearTimeout(timeout);
+        unsub();
+        if (wallet) {
+          twWalletAddress = wallet.account.address;
+          resolve(wallet);
+        } else {
+          reject(new Error('Connection cancelled'));
+        }
       });
-    }
+    });
 
-    twWalletAddress = twTonConnect.account.address;
     await twCreateToken();
   } catch (e) {
-    // Reset to connect state
-    widgets.forEach(w => {
-      w.querySelector('.tw-connect').classList.remove('tw-hidden');
-      w.querySelector('.tw-generating').classList.add('tw-hidden');
-    });
+    twShowState('connect');
   }
 }
 
@@ -75,6 +103,7 @@ async function twCreateToken() {
     gen.classList.remove('tw-hidden');
     gen.querySelector('span').textContent = 'Generating token...';
   });
+  twShowState('generating');
 
   try {
     const res = await fetch(API_URL + '/v1/auth/token', {
@@ -86,16 +115,14 @@ async function twCreateToken() {
     if (!res.ok) throw new Error(data.error || 'Failed');
 
     widgets.forEach(w => {
-      w.querySelector('.tw-generating').classList.add('tw-hidden');
-      w.querySelector('.tw-result').classList.remove('tw-hidden');
       w.querySelector('.tw-token-value').textContent = data.token;
     });
+    twShowState('result');
   } catch (e) {
+    twShowState('connect');
+    const widgets = document.querySelectorAll('.token-widget');
     widgets.forEach(w => {
-      w.querySelector('.tw-generating').classList.add('tw-hidden');
-      w.querySelector('.tw-connect').classList.remove('tw-hidden');
-      const btn = w.querySelector('.tw-btn');
-      btn.textContent = 'Try again';
+      w.querySelector('.tw-connect .tw-btn').textContent = 'Try again';
     });
   }
 }
@@ -121,11 +148,10 @@ async function twDisconnect() {
     await twTonConnect.disconnect();
   }
   twWalletAddress = null;
+  twReady = false;
+  twShowState('connect');
   const widgets = document.querySelectorAll('.token-widget');
   widgets.forEach(w => {
-    w.querySelector('.tw-result').classList.add('tw-hidden');
-    w.querySelector('.tw-generating').classList.add('tw-hidden');
-    w.querySelector('.tw-connect').classList.remove('tw-hidden');
     w.querySelector('.tw-connect .tw-btn').textContent = 'Connect Wallet & Generate Token';
   });
 }
