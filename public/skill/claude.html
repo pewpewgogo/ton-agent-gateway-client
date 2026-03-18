@@ -42,7 +42,8 @@
       <div class="step">
         <span class="step-num">1</span><span class="step-title">Get your token</span>
         <div class="step-body">
-          <p>Connect your wallet on the <a href="/app.html">dashboard</a> and create a token for your agent.</p>
+          <p>Generate a token right here or on the <a href="/app.html">dashboard</a>.</p>
+          <div class="token-widget"></div>
         </div>
       </div>
       <div class="step">
@@ -155,6 +156,8 @@ Agent: [calls get_request_status with id="abc-123"]
     </div>
   </footer>
 
+  <script src="https://unpkg.com/@tonconnect/ui@2.0.12/dist/tonconnect-ui.min.js"></script>
+  <script src="token-widget.js"></script>
   <script>
     function copyBlock(btn) {
       const code = btn.closest('pre').querySelector('code');

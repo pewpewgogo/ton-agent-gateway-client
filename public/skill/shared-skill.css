@@ -123,3 +123,141 @@ td code { font-size: 12px; }
 .copy-btn.copied {
   color: var(--green);
 }
+
+/* --- Token Widget --- */
+
+.token-widget {
+  margin-top: 8px;
+}
+
+.tw-hidden { display: none !important; }
+
+.tw-btn {
+  font-family: var(--font-body);
+  font-size: 13px;
+  font-weight: 500;
+  padding: 10px 20px;
+  border-radius: 8px;
+  border: none;
+  cursor: pointer;
+  background: var(--accent);
+  color: #fff;
+  box-shadow: 0 0 16px rgba(59,130,246,0.25);
+  transition: all 0.2s;
+}
+
+.tw-btn:hover {
+  background: #4f8ff7;
+  box-shadow: 0 0 24px rgba(59,130,246,0.35);
+  transform: translateY(-1px);
+}
+
+.tw-btn-sm {
+  font-size: 12px;
+  padding: 6px 14px;
+  box-shadow: none;
+  background: rgba(59,130,246,0.12);
+  color: var(--accent);
+}
+
+.tw-btn-sm:hover {
+  background: rgba(59,130,246,0.2);
+  box-shadow: none;
+}
+
+.tw-btn-link {
+  background: none;
+  border: none;
+  color: var(--text-dim);
+  font-size: 12px;
+  font-family: var(--font-body);
+  cursor: pointer;
+  padding: 6px 8px;
+  transition: color 0.2s;
+}
+
+.tw-btn-link:hover {
+  color: var(--text);
+}
+
+.tw-hint {
+  font-size: 12px;
+  color: var(--text-dim);
+  margin: 8px 0 0;
+}
+
+.tw-generating {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  font-size: 13px;
+  color: var(--text-dim);
+}
+
+.tw-spinner {
+  width: 16px;
+  height: 16px;
+  border: 2px solid var(--border);
+  border-top-color: var(--accent);
+  border-radius: 50%;
+  animation: tw-spin 0.6s linear infinite;
+}
+
+@keyframes tw-spin {
+  to { transform: rotate(360deg); }
+}
+
+.tw-result {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.tw-token-box {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  background: var(--bg);
+  border: 1px solid var(--border-glow);
+  border-radius: 8px;
+  padding: 10px 12px;
+}
+
+.tw-token-box code {
+  flex: 1;
+  font-size: 11px;
+  color: var(--green);
+  background: none;
+  border: none;
+  padding: 0;
+  word-break: break-all;
+  line-height: 1.4;
+}
+
+.tw-copy-btn {
+  font-family: var(--font-body);
+  font-size: 12px;
+  padding: 4px 12px;
+  border-radius: 4px;
+  border: none;
+  background: var(--border);
+  color: var(--text-dim);
+  cursor: pointer;
+  flex-shrink: 0;
+  transition: all 0.2s;
+}
+
+.tw-copy-btn:hover {
+  background: var(--border-glow);
+  color: var(--text-bright);
+}
+
+.tw-copied {
+  color: var(--green) !important;
+}
+
+.tw-token-hint {
+  font-size: 12px;
+  color: var(--text-dim);
+  margin: 0;
+}
