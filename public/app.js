@@ -169,18 +169,18 @@ function renderSessions(sessions) {
   const list = document.getElementById('token-list');
   const banner = document.getElementById('new-token-banner');
 
-  const sorted = sessions.sort((a, b) => b.createdAt - a.createdAt);
+  const others = sessions.filter(s => s.sid !== clientSessionId);
+  const sorted = others.sort((a, b) => b.createdAt - a.createdAt);
   const cards = sorted.map((s) => {
-    const isMe = s.sid === clientSessionId;
     const age = timeAgo(s.createdAt);
     return `
       <div class="token-card">
         <div class="token-card-row">
-          <span class="token-label">${esc(s.label)}${isMe ? ' <span class="badge-self">this session</span>' : ''}</span>
+          <span class="token-label">${esc(s.label)}</span>
           <span class="token-age">${age}</span>
         </div>
         <div class="token-card-actions">
-          ${isMe ? '' : `<button class="revoke" onclick="revokeToken('${s.sid}','${esc(s.label)}')">Revoke</button>`}
+          <button class="revoke" onclick="revokeToken('${s.sid}','${esc(s.label)}')">Revoke</button>
         </div>
       </div>
     `;
@@ -189,11 +189,11 @@ function renderSessions(sessions) {
   const bannerHtml = banner ? banner.outerHTML : '';
   list.innerHTML = bannerHtml + cards;
 
-  if (!sessions.length && !banner) {
+  if (!sorted.length && !banner) {
     list.innerHTML = '<p class="empty">No tokens yet</p>';
   }
 
-  const othersCount = sessions.filter(s => s.sid !== clientSessionId).length;
+  const othersCount = sorted.length;
   const revokeAllRow = document.getElementById('revoke-all-row');
   if (revokeAllRow) {
     if (othersCount > 0) revokeAllRow.classList.remove('hidden');
