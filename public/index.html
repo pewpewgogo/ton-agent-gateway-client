@@ -418,10 +418,52 @@
       color: var(--green);
     }
 
+    .install-tabs {
+      display: flex;
+      gap: 0;
+      border-bottom: 1px solid var(--border);
+      margin-bottom: 20px;
+    }
+
+    .install-tab {
+      padding: 10px 20px;
+      font-size: 13px;
+      font-family: var(--font-body);
+      font-weight: 500;
+      color: var(--text-dim);
+      background: none;
+      border: none;
+      border-bottom: 2px solid transparent;
+      margin-bottom: -1px;
+      cursor: pointer;
+      transition: all 0.15s;
+    }
+
+    .install-tab:hover {
+      color: var(--text);
+    }
+
+    .install-tab.active {
+      color: var(--text-bright);
+      border-bottom-color: var(--accent);
+    }
+
+    .install-panel {
+      display: none;
+    }
+
+    .install-panel.active {
+      display: block;
+    }
+
     .install-hint {
       font-size: 13px;
       color: var(--text-dim);
       margin-bottom: 12px;
+    }
+
+    .install-hint code {
+      font-size: 12px;
     }
 
     /* --- Integrations --- */
@@ -598,7 +640,14 @@
 
     <!-- Install command -->
     <div class="install-block reveal">
-      <div class="install-label">Quick start with Claude Code</div>
+      <div class="install-tabs">
+        <button class="install-tab active" onclick="switchInstallTab('claude', this)">Claude Code</button>
+        <button class="install-tab" onclick="switchInstallTab('cursor', this)">Cursor</button>
+        <button class="install-tab" onclick="switchInstallTab('codex', this)">Codex CLI</button>
+      </div>
+
+      <div class="install-panel active" id="install-claude">
+        <p class="install-hint">Run in your terminal:</p>
 <pre class="install-pre"><code>claude mcp add-json agent-gateway '{
   "command": "npx",
   "args": ["-y", "@tongateway/mcp"],
@@ -606,9 +655,41 @@
     "AGENT_GATEWAY_API_URL": "https://api.tongateway.ai"
   }
 }' --scope user</code><button class="install-copy" onclick="copyInstall(this)">Copy</button></pre>
+      </div>
+
+      <div class="install-panel" id="install-cursor">
+        <p class="install-hint">Add to Cursor Settings &rarr; MCP Servers:</p>
+<pre class="install-pre"><code>{
+  "mcpServers": {
+    "agent-gateway": {
+      "command": "npx",
+      "args": ["-y", "@tongateway/mcp"],
+      "env": {
+        "AGENT_GATEWAY_API_URL": "https://api.tongateway.ai"
+      }
+    }
+  }
+}</code><button class="install-copy" onclick="copyInstall(this)">Copy</button></pre>
+      </div>
+
+      <div class="install-panel" id="install-codex">
+        <p class="install-hint">Add to <code>~/.codex/config.json</code>:</p>
+<pre class="install-pre"><code>{
+  "mcpServers": {
+    "agent-gateway": {
+      "command": "npx",
+      "args": ["-y", "@tongateway/mcp"],
+      "env": {
+        "AGENT_GATEWAY_API_URL": "https://api.tongateway.ai"
+      }
+    }
+  }
+}</code><button class="install-copy" onclick="copyInstall(this)">Copy</button></pre>
+      </div>
+
       <p class="install-hint">Then just say:</p>
 <pre class="install-pre install-example"><code>Send 1 TON to EQD...abc</code></pre>
-      <p class="install-hint">The agent will connect your wallet, request the transfer, and you approve in Tonkeeper.</p>
+      <p class="install-hint">The agent will connect your wallet, request the transfer, and you approve in your wallet app.</p>
     </div>
   </section>
 
@@ -730,6 +811,14 @@
                      l.type === 'you' ? 400 : 500;
 
       setTimeout(showNextLine, delay);
+    }
+
+    // --- Install tabs ---
+    function switchInstallTab(id, btn) {
+      document.querySelectorAll('.install-tab').forEach(t => t.classList.remove('active'));
+      document.querySelectorAll('.install-panel').forEach(p => p.classList.remove('active'));
+      btn.classList.add('active');
+      document.getElementById('install-' + id).classList.add('active');
     }
 
     // --- Copy install command ---
