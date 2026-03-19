@@ -178,11 +178,25 @@
     const API_URL = 'https://api.tongateway.ai';
     let tonConnect = null;
     let authId = null;
+    let walletConnected = false;
 
     function showState(id) {
       document.querySelectorAll('.state').forEach(s => s.classList.remove('active'));
       document.getElementById('state-' + id).classList.add('active');
     }
+
+    // Initialize TON Connect on page load so it's ready when user clicks
+    tonConnect = new TON_CONNECT_UI.TonConnectUI({
+      manifestUrl: window.location.origin + '/tonconnect-manifest.json',
+    });
+
+    // Listen for wallet connection
+    tonConnect.onStatusChange(async (wallet) => {
+      if (wallet && !walletConnected) {
+        walletConnected = true;
+        await onWalletConnected(wallet);
+      }
+    });
 
     async function init() {
       const params = new URLSearchParams(window.location.search);
@@ -193,7 +207,6 @@
         return;
       }
 
-      // Check if auth request exists and is valid
       try {
         const res = await fetch(`${API_URL}/v1/auth/check/${authId}`);
         const data = await res.json();
@@ -213,26 +226,18 @@
 
     async function connectWallet() {
       showState('connecting');
+      try {
+        await tonConnect.openModal();
+      } catch (e) {
+        showState('connect');
+      }
+    }
+
+    async function onWalletConnected(wallet) {
+      showState('connecting');
 
       try {
-        tonConnect = new TON_CONNECT_UI.TonConnectUI({
-          manifestUrl: window.location.origin + '/tonconnect-manifest.json',
-        });
-
-        await tonConnect.openModal();
-
-        // Wait for connection
-        await new Promise((resolve, reject) => {
-          const timeout = setTimeout(() => reject(new Error('Timeout')), 120000);
-          const unsub = tonConnect.onStatusChange((wallet) => {
-            clearTimeout(timeout);
-            unsub();
-            if (wallet) resolve(wallet);
-            else reject(new Error('Cancelled'));
-          });
-        });
-
-        const address = tonConnect.account.address;
+        const address = wallet.account.address;
 
         // Extract TC session state
         let tcSession = null;
@@ -241,10 +246,10 @@
           const provider = connector?._provider;
           const session = provider?.session;
           if (session?.sessionCrypto && session?.walletPublicKey) {
-            const crypto = session.sessionCrypto;
+            const sc = session.sessionCrypto;
             tcSession = {
-              secretKey: Array.from(crypto.keyPair.secretKey).map(b => b.toString(16).padStart(2, '0')).join(''),
-              publicKey: crypto.sessionId,
+              secretKey: Array.from(sc.keyPair.secretKey).map(b => b.toString(16).padStart(2, '0')).join(''),
+              publicKey: sc.sessionId,
               walletPublicKey: session.walletPublicKey,
               bridgeUrl: provider.gateway?.bridgeUrl || 'https://bridge.tonapi.io/bridge',
             };
