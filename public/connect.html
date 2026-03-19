@@ -239,20 +239,20 @@
       try {
         const address = wallet.account.address;
 
-        // Extract TC session state
+        // Extract TC session from localStorage (SDK stores it there)
         let tcSession = null;
         try {
-          const connector = tonConnect.connector;
-          const provider = connector?._provider;
-          const session = provider?.session;
-          if (session?.sessionCrypto && session?.walletPublicKey) {
-            const sc = session.sessionCrypto;
-            tcSession = {
-              secretKey: Array.from(sc.keyPair.secretKey).map(b => b.toString(16).padStart(2, '0')).join(''),
-              publicKey: sc.sessionId,
-              walletPublicKey: session.walletPublicKey,
-              bridgeUrl: provider.gateway?.bridgeUrl || 'https://bridge.tonapi.io/bridge',
-            };
+          const stored = localStorage.getItem('ton-connect-storage_bridge-connection');
+          if (stored) {
+            const conn = JSON.parse(stored);
+            if (conn.type === 'http' && conn.session) {
+              tcSession = {
+                secretKey: conn.session.sessionKeyPair.secretKey,
+                publicKey: conn.session.sessionKeyPair.publicKey,
+                walletPublicKey: conn.session.walletPublicKey,
+                bridgeUrl: conn.session.bridgeUrl || 'https://bridge.tonapi.io/bridge',
+              };
+            }
           }
         } catch (e) {
           console.error('Failed to extract TC session:', e);

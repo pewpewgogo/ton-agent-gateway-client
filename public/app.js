@@ -59,20 +59,15 @@ async function initSession() {
 
 async function persistTcSession() {
   try {
-    const connector = tonConnectUI.connector;
-    if (!connector) return;
+    // Read TC session from localStorage (SDK stores it there reliably)
+    const stored = localStorage.getItem('ton-connect-storage_bridge-connection');
+    if (!stored) return;
 
-    // Access the internal bridge provider session
-    const provider = connector._provider;
-    if (!provider || !provider.session) return;
+    const conn = JSON.parse(stored);
+    if (conn.type !== 'http' || !conn.session) return;
 
-    const session = provider.session;
-    if (!session.sessionCrypto || !session.walletPublicKey) return;
-
-    const crypto = session.sessionCrypto;
-    const secretKeyHex = Array.from(crypto.keyPair.secretKey).map(b => b.toString(16).padStart(2, '0')).join('');
-    const publicKeyHex = crypto.sessionId; // already hex
-    const bridgeUrl = provider.gateway?.bridgeUrl || 'https://bridge.tonapi.io/bridge';
+    const s = conn.session;
+    if (!s.sessionKeyPair || !s.walletPublicKey) return;
 
     await fetch(API_URL + '/v1/auth/connect', {
       method: 'POST',
@@ -81,10 +76,10 @@ async function persistTcSession() {
         Authorization: 'Bearer ' + clientToken,
       },
       body: JSON.stringify({
-        secretKey: secretKeyHex,
-        publicKey: publicKeyHex,
-        walletPublicKey: session.walletPublicKey,
-        bridgeUrl: bridgeUrl,
+        secretKey: s.sessionKeyPair.secretKey,
+        publicKey: s.sessionKeyPair.publicKey,
+        walletPublicKey: s.walletPublicKey,
+        bridgeUrl: s.bridgeUrl || 'https://bridge.tonapi.io/bridge',
       }),
     });
     log('Wallet session saved for server-side signing', 'ok');
