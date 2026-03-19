@@ -1,0 +1,278 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Agent Gateway — Connect Wallet</title>
+  <link rel="stylesheet" href="shared.css">
+  <style>
+    .connect-page {
+      max-width: 480px;
+      margin: 0 auto;
+      padding: 160px 24px 80px;
+      text-align: center;
+    }
+
+    .connect-card {
+      background: var(--bg-card);
+      border: 1px solid var(--border);
+      border-radius: 16px;
+      padding: 48px 40px;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .connect-card::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      height: 1px;
+      background: linear-gradient(90deg, transparent, var(--accent), transparent);
+    }
+
+    .connect-icon {
+      width: 64px;
+      height: 64px;
+      border-radius: 16px;
+      background: rgba(59,130,246,0.08);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      margin: 0 auto 24px;
+      font-size: 28px;
+    }
+
+    .connect-card h1 {
+      font-size: 22px;
+      font-weight: 600;
+      color: var(--text-bright);
+      margin-bottom: 12px;
+      letter-spacing: -0.02em;
+    }
+
+    .connect-card p {
+      font-size: 14px;
+      color: var(--text);
+      margin-bottom: 24px;
+      line-height: 1.6;
+    }
+
+    .connect-btn {
+      font-family: var(--font-body);
+      font-size: 15px;
+      font-weight: 500;
+      padding: 14px 32px;
+      border-radius: 8px;
+      border: none;
+      cursor: pointer;
+      background: var(--accent);
+      color: #fff;
+      box-shadow: 0 0 20px rgba(59,130,246,0.3);
+      transition: all 0.2s;
+    }
+
+    .connect-btn:hover {
+      background: #4f8ff7;
+      box-shadow: 0 0 30px rgba(59,130,246,0.4);
+      transform: translateY(-1px);
+    }
+
+    .success-icon {
+      background: rgba(52,211,153,0.08);
+    }
+
+    .error-icon {
+      background: rgba(248,113,113,0.08);
+    }
+
+    .spinner {
+      width: 24px;
+      height: 24px;
+      border: 3px solid var(--border);
+      border-top-color: var(--accent);
+      border-radius: 50%;
+      animation: spin 0.6s linear infinite;
+      margin: 0 auto 24px;
+    }
+
+    @keyframes spin {
+      to { transform: rotate(360deg); }
+    }
+
+    .state { display: none; }
+    .state.active { display: block; }
+  </style>
+</head>
+<body>
+  <div class="grid-bg"></div>
+
+  <nav class="site-nav">
+    <a href="/" class="nav-logo"><span>></span> agent_gateway</a>
+    <div class="nav-links">
+      <a href="/docs.html">Docs</a>
+      <a href="/skills.html">Skill</a>
+      <a href="https://api.tongateway.ai/docs" target="_blank">API</a>
+      <a href="/app.html" class="nav-cta">Dashboard</a>
+    </div>
+  </nav>
+
+  <div class="connect-page">
+    <div class="connect-card">
+      <!-- Loading State -->
+      <div id="state-loading" class="state active">
+        <div class="spinner"></div>
+        <p>Verifying request...</p>
+      </div>
+
+      <!-- Connect State -->
+      <div id="state-connect" class="state">
+        <div class="connect-icon">
+          <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="#3b82f6" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
+        </div>
+        <h1>Connect Your Wallet</h1>
+        <p>An AI agent is requesting access to send TON transfers on your behalf. You'll approve each transaction in your wallet.</p>
+        <button class="connect-btn" onclick="connectWallet()">Connect with TON Connect</button>
+      </div>
+
+      <!-- Connecting State -->
+      <div id="state-connecting" class="state">
+        <div class="spinner"></div>
+        <h1>Connecting...</h1>
+        <p>Complete the connection in your wallet app.</p>
+      </div>
+
+      <!-- Success State -->
+      <div id="state-success" class="state">
+        <div class="connect-icon success-icon">
+          <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="#34d399" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
+        </div>
+        <h1>Connected!</h1>
+        <p>Your wallet is linked. You can close this page — your AI agent now has access to request transfers.</p>
+      </div>
+
+      <!-- Error State -->
+      <div id="state-error" class="state">
+        <div class="connect-icon error-icon">
+          <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="#f87171" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><line x1="15" y1="9" x2="9" y2="15"/><line x1="9" y1="9" x2="15" y2="15"/></svg>
+        </div>
+        <h1>Link Expired</h1>
+        <p id="error-message">This authentication link has expired or is invalid. Ask your agent to generate a new one.</p>
+      </div>
+    </div>
+  </div>
+
+  <footer class="site-footer">
+    <div class="left">&copy; 2026 Agent Gateway &middot; Built on <svg viewBox="12 15 32 30" fill="none" xmlns="http://www.w3.org/2000/svg" style="display:inline-block;height:14px;width:14px;vertical-align:middle"><path d="M37.5603 15.6277H18.4386C14.9228 15.6277 12.6944 19.4202 14.4632 22.4861L26.2644 42.9409C27.0345 44.2765 28.9644 44.2765 29.7345 42.9409L41.5381 22.4861C43.3045 19.4251 41.0761 15.6277 37.5627 15.6277H37.5603ZM26.2548 36.8068L23.6847 31.8327L17.4833 20.7414C17.0742 20.0315 17.5795 19.1218 18.4362 19.1218H26.2524V36.8092L26.2548 36.8068ZM38.5108 20.739L32.3118 31.8351L29.7417 36.8068V19.1194H37.5579C38.4146 19.1194 38.9199 20.0291 38.5108 20.739Z" fill="currentColor"></path></svg> TON</div>
+    <div class="right">
+      <a href="/docs.html">Docs</a>
+      <a href="/skills.html">Skill</a>
+      <a href="https://api.tongateway.ai/docs" target="_blank">API</a>
+      <a href="/app.html">Dashboard</a>
+    </div>
+  </footer>
+
+  <script src="https://unpkg.com/@tonconnect/ui@2.0.12/dist/tonconnect-ui.min.js"></script>
+  <script>
+    const API_URL = 'https://api.tongateway.ai';
+    let tonConnect = null;
+    let authId = null;
+
+    function showState(id) {
+      document.querySelectorAll('.state').forEach(s => s.classList.remove('active'));
+      document.getElementById('state-' + id).classList.add('active');
+    }
+
+    async function init() {
+      const params = new URLSearchParams(window.location.search);
+      authId = params.get('authId');
+
+      if (!authId) {
+        showState('error');
+        return;
+      }
+
+      // Check if auth request exists and is valid
+      try {
+        const res = await fetch(`${API_URL}/v1/auth/check/${authId}`);
+        const data = await res.json();
+        if (!res.ok || data.status === 'completed') {
+          document.getElementById('error-message').textContent =
+            data.status === 'completed'
+              ? 'This link has already been used.'
+              : 'This authentication link has expired or is invalid.';
+          showState('error');
+          return;
+        }
+        showState('connect');
+      } catch {
+        showState('error');
+      }
+    }
+
+    async function connectWallet() {
+      showState('connecting');
+
+      try {
+        tonConnect = new TON_CONNECT_UI.TonConnectUI({
+          manifestUrl: window.location.origin + '/tonconnect-manifest.json',
+        });
+
+        await tonConnect.openModal();
+
+        // Wait for connection
+        await new Promise((resolve, reject) => {
+          const timeout = setTimeout(() => reject(new Error('Timeout')), 120000);
+          const unsub = tonConnect.onStatusChange((wallet) => {
+            clearTimeout(timeout);
+            unsub();
+            if (wallet) resolve(wallet);
+            else reject(new Error('Cancelled'));
+          });
+        });
+
+        const address = tonConnect.account.address;
+
+        // Extract TC session state
+        let tcSession = null;
+        try {
+          const connector = tonConnect.connector;
+          const provider = connector?._provider;
+          const session = provider?.session;
+          if (session?.sessionCrypto && session?.walletPublicKey) {
+            const crypto = session.sessionCrypto;
+            tcSession = {
+              secretKey: Array.from(crypto.keyPair.secretKey).map(b => b.toString(16).padStart(2, '0')).join(''),
+              publicKey: crypto.sessionId,
+              walletPublicKey: session.walletPublicKey,
+              bridgeUrl: provider.gateway?.bridgeUrl || 'https://bridge.tonapi.io/bridge',
+            };
+          }
+        } catch (e) {
+          console.error('Failed to extract TC session:', e);
+        }
+
+        // Complete auth on server
+        const res = await fetch(`${API_URL}/v1/auth/complete/${authId}`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ address, tcSession }),
+        });
+
+        if (!res.ok) {
+          const data = await res.json();
+          throw new Error(data.error || 'Failed');
+        }
+
+        showState('success');
+      } catch (e) {
+        document.getElementById('error-message').textContent = e.message || 'Connection failed. Please try again.';
+        showState('error');
+      }
+    }
+
+    init();
+  </script>
+</body>
+</html>
