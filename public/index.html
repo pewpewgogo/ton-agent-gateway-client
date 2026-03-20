@@ -783,13 +783,12 @@ curl -o skills/agent-gateway/SKILL.md \
       { type: 'agent', text: "I'll request that transfer for you." },
       { type: 'tool', html: '<code>request_transfer</code> to=EQD...abc amount=500000000' },
       { type: 'spacer' },
-      { type: 'success', text: 'Transfer request created (ID: abc-123).' },
-      { type: 'agent', text: 'Please approve it in your Agent Gateway dashboard.' },
+      { type: 'success', text: 'Transfer request created. Approve it in your wallet.' },
       { type: 'spacer' },
-      { type: 'you', text: 'Is it confirmed?' },
+      { type: 'you', text: 'What is my balance?' },
       { type: 'spacer' },
-      { type: 'tool', html: '<code>get_request_status</code> id=abc-123' },
-      { type: 'agent', text: 'Yes, the transfer was confirmed and signed by the wallet.' },
+      { type: 'tool', html: '<code>get_wallet_info</code>' },
+      { type: 'agent', text: '823.18 TON ($1,017) \u2022 4 jettons \u2022 25 NFTs' },
     ];
 
     const demo = document.getElementById('chat-demo');
