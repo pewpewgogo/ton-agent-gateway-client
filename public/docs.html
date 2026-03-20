@@ -148,15 +148,21 @@
       <h2 style="margin-top:0">MCP Server (Claude Code / AI Agents)</h2>
       <p>The easiest way to connect an AI agent is via the <strong>MCP server</strong>. It exposes Agent Gateway tools directly — no HTTP knowledge needed.</p>
 
-      <h3>Install</h3>
-<pre><code>npm install -g agent-gateway-mcp</code></pre>
-
       <h3>Configure in Claude Code</h3>
-      <p>Add to your <code>.claude/settings.json</code> or project settings:</p>
+      <p>Run in your terminal:</p>
+<pre><code>claude mcp add-json tongateway '{
+  "command": "npx",
+  "args": ["-y", "@tongateway/mcp"],
+  "env": {
+    "AGENT_GATEWAY_API_URL": "https://api.tongateway.ai"
+  }
+}' --scope user</code></pre>
+      <p>Or add manually to your <code>.claude/settings.json</code>:</p>
 <pre><code>{
   "mcpServers": {
     "tongateway": {
-      "command": "agent-gateway-mcp",
+      "command": "npx",
+      "args": ["-y", "@tongateway/mcp"],
       "env": {
         "AGENT_GATEWAY_TOKEN": "YOUR_TOKEN_HERE",
         "AGENT_GATEWAY_API_URL": "https://api.tongateway.ai"

@@ -65,7 +65,8 @@ curl -o ~/.openclaw/skills/agent-gateway/SKILL.md \
 <pre><code>{
   "mcpServers": {
     "tongateway": {
-      "command": "agent-gateway-mcp",
+      "command": "npx",
+      "args": ["-y", "@tongateway/mcp"],
       "env": {
         "AGENT_GATEWAY_TOKEN": "YOUR_TOKEN_HERE",
         "AGENT_GATEWAY_API_URL": "https://api.tongateway.ai"
