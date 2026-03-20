@@ -795,9 +795,22 @@ curl -o skills/agent-gateway/SKILL.md \
     let lineIdx = 0;
     let started = false;
 
+    function typeText(el, text, speed, cb) {
+      let i = 0;
+      function tick() {
+        if (i < text.length) {
+          el.textContent += text[i];
+          i++;
+          setTimeout(tick, speed);
+        } else if (cb) {
+          cb();
+        }
+      }
+      tick();
+    }
+
     function showNextLine() {
       if (lineIdx >= lines.length) {
-        // Add blinking cursor to last line
         const last = demo.lastElementChild;
         if (last) {
           const cursor = document.createElement('span');
@@ -812,24 +825,28 @@ curl -o skills/agent-gateway/SKILL.md \
 
       if (l.type === 'spacer') {
         el.className = 't-spacer';
-      } else {
-        el.className = `t-line t-${l.type}`;
-        el.style.animationDelay = '0s';
-        if (l.html) {
-          el.innerHTML = l.html;
-        } else {
-          el.textContent = l.text;
-        }
+        demo.appendChild(el);
+        lineIdx++;
+        setTimeout(showNextLine, 200);
+        return;
       }
 
+      el.className = `t-line t-${l.type}`;
+      el.style.animationDelay = '0s';
       demo.appendChild(el);
       lineIdx++;
 
-      const delay = l.type === 'spacer' ? 200 :
-                     l.type === 'tool' ? 600 :
-                     l.type === 'you' ? 400 : 500;
-
-      setTimeout(showNextLine, delay);
+      if (l.html) {
+        el.innerHTML = l.html;
+        setTimeout(showNextLine, 600);
+      } else if (l.type === 'agent' || l.type === 'success') {
+        typeText(el, l.text, 25, () => setTimeout(showNextLine, 300));
+      } else if (l.type === 'you') {
+        typeText(el, l.text, 40, () => setTimeout(showNextLine, 500));
+      } else {
+        el.textContent = l.text;
+        setTimeout(showNextLine, 500);
+      }
     }
 
     // --- Install tabs ---
