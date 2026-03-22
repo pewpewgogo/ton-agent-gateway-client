@@ -38,20 +38,7 @@
       <h2>Setup</h2>
 
       <div class="step">
-        <span class="step-num">1</span><span class="step-title">Get your token</span>
-        <div class="step-body">
-          <p>Generate a token right here or on the <a href="/app.html">dashboard</a>.</p>
-          <div class="token-widget"></div>
-        </div>
-      </div>
-      <div class="step">
-        <span class="step-num">2</span><span class="step-title">Install the MCP server</span>
-        <div class="step-body">
-<pre><code>npm install -g @tongateway/mcp</code><button class="copy-btn" onclick="copyBlock(this)">Copy</button></pre>
-        </div>
-      </div>
-      <div class="step">
-        <span class="step-num">3</span><span class="step-title">Configure your MCP client</span>
+        <span class="step-num">1</span><span class="step-title">Configure your MCP client</span>
         <div class="step-body">
           <p>Add to your MCP client config (the exact file depends on your tool):</p>
 <pre><code>{
@@ -60,13 +47,18 @@
       "command": "npx",
       "args": ["-y", "@tongateway/mcp"],
       "env": {
-        "AGENT_GATEWAY_TOKEN": "YOUR_TOKEN_HERE",
         "AGENT_GATEWAY_API_URL": "https://api.tongateway.ai"
       }
     }
   }
 }</code><button class="copy-btn" onclick="copyBlock(this)">Copy</button></pre>
-          <p>Paste your token from step 1. The server communicates via stdio — no HTTP, no ports.</p>
+          <p class="hint-dim">No token needed. The agent authenticates automatically — it generates a link, you open it and connect your wallet once.</p>
+        </div>
+      </div>
+      <div class="step">
+        <span class="step-num">2</span><span class="step-title">Try it</span>
+        <div class="step-body">
+          <p>Ask your agent to <code>"send 1 TON to EQD...abc"</code> and it will use the MCP tools. The server communicates via stdio — no HTTP, no ports.</p>
         </div>
       </div>
     </div>
@@ -144,8 +136,6 @@ Agent: [calls get_request_status with id="abc-123"]
     </div>
   </footer>
 
-  <script src="https://unpkg.com/@tonconnect/ui@2.0.12/dist/tonconnect-ui.min.js"></script>
-  <script src="token-widget.js"></script>
   <script>
     function copyBlock(btn) {
       const code = btn.closest('pre').querySelector('code');

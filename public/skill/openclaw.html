@@ -38,29 +38,8 @@
       <h2>Setup</h2>
 
       <div class="step">
-        <span class="step-num">1</span><span class="step-title">Get your token</span>
+        <span class="step-num">1</span><span class="step-title">Add MCP server</span>
         <div class="step-body">
-          <p>Generate a token right here or on the <a href="/app.html">dashboard</a>.</p>
-          <div class="token-widget"></div>
-        </div>
-      </div>
-      <div class="step">
-        <span class="step-num">2</span><span class="step-title">Install the skill (project-level)</span>
-        <div class="step-body">
-<pre><code>mkdir -p skills/agent-gateway
-curl -o skills/agent-gateway/SKILL.md \
-  https://tongateway.ai/agent-gateway.md</code><button class="copy-btn" onclick="copyBlock(this)">Copy</button></pre>
-          <p style="margin-top:12px">Or install globally:</p>
-<pre><code>mkdir -p ~/.openclaw/skills/agent-gateway
-curl -o ~/.openclaw/skills/agent-gateway/SKILL.md \
-  https://tongateway.ai/agent-gateway.md</code><button class="copy-btn" onclick="copyBlock(this)">Copy</button></pre>
-        </div>
-      </div>
-      <div class="step">
-        <span class="step-num">3</span><span class="step-title">Configure the MCP server (optional)</span>
-        <div class="step-body">
-          <p>For native tool access, also install the MCP server:</p>
-<pre><code>npm install -g @tongateway/mcp</code><button class="copy-btn" onclick="copyBlock(this)">Copy</button></pre>
           <p>Add to your OpenClaw MCP config:</p>
 <pre><code>{
   "mcpServers": {
@@ -68,18 +47,18 @@ curl -o ~/.openclaw/skills/agent-gateway/SKILL.md \
       "command": "npx",
       "args": ["-y", "@tongateway/mcp"],
       "env": {
-        "AGENT_GATEWAY_TOKEN": "YOUR_TOKEN_HERE",
         "AGENT_GATEWAY_API_URL": "https://api.tongateway.ai"
       }
     }
   }
 }</code><button class="copy-btn" onclick="copyBlock(this)">Copy</button></pre>
+          <p class="hint-dim">No token needed. The agent authenticates automatically — it generates a link, you open it and connect your wallet once.</p>
         </div>
       </div>
       <div class="step">
-        <span class="step-num">4</span><span class="step-title">Restart &amp; use</span>
+        <span class="step-num">2</span><span class="step-title">Try it</span>
         <div class="step-body">
-          <p>Restart OpenClaw — skills are loaded at startup. Then just say "send TON" and the agent will use the skill.</p>
+          <p>Restart OpenClaw and just say "send TON" — the agent will use the MCP tools.</p>
         </div>
       </div>
     </div>
@@ -144,8 +123,6 @@ POST https://api.tongateway.ai/v1/safe/tx/transfer
     </div>
   </footer>
 
-  <script src="https://unpkg.com/@tonconnect/ui@2.0.12/dist/tonconnect-ui.min.js"></script>
-  <script src="token-widget.js"></script>
   <script>
     function copyBlock(btn) {
       const code = btn.closest('pre').querySelector('code');

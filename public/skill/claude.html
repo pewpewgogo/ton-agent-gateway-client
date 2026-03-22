@@ -29,7 +29,7 @@
       </div>
       <div>
         <h1 class="page-title">Claude Code</h1>
-        <p class="page-desc">Give Claude Code access to TON blockchain via MCP server. Two steps.</p>
+        <p class="page-desc">Give Claude Code access to TON blockchain via MCP server. One command.</p>
       </div>
     </div>
 
@@ -44,31 +44,22 @@
       <h2>Setup</h2>
 
       <div class="step">
-        <span class="step-num">1</span><span class="step-title">Generate your token</span>
-        <div class="step-body">
-          <p>Generate a token right here or on the <a href="/app.html">dashboard</a>.</p>
-          <div class="token-widget"></div>
-        </div>
-      </div>
-
-      <div class="step">
-        <span class="step-num">2</span><span class="step-title">Add MCP server to Claude Code</span>
+        <span class="step-num">1</span><span class="step-title">Add MCP server to Claude Code</span>
         <div class="step-body">
           <p>Run this single command in your terminal:</p>
-<pre><code data-token-placeholder>claude mcp add-json tongateway '{
+<pre><code>claude mcp add-json tongateway '{
   "command": "npx",
   "args": ["-y", "@tongateway/mcp"],
   "env": {
-    "AGENT_GATEWAY_TOKEN": "YOUR_TOKEN_HERE",
     "AGENT_GATEWAY_API_URL": "https://api.tongateway.ai"
   }
 }' --scope user</code><button class="copy-btn" onclick="copyBlock(this)">Copy</button></pre>
-          <p class="hint-dim">This installs and configures the MCP server globally for your user. No <code>npm install</code> needed — <code>npx</code> handles it.</p>
+          <p class="hint-dim">No token needed. The agent authenticates automatically — it generates a link, you open it and connect your wallet once.</p>
         </div>
       </div>
 
       <div class="step">
-        <span class="step-num">3</span><span class="step-title">Done — try it</span>
+        <span class="step-num">2</span><span class="step-title">Done — try it</span>
         <div class="step-body">
           <p>Restart Claude Code and say:</p>
 <pre><code>Send 0.5 TON to EQD...abc</code></pre>
@@ -183,8 +174,6 @@ POST https://api.tongateway.ai/v1/safe/tx/transfer
     </div>
   </footer>
 
-  <script src="https://unpkg.com/@tonconnect/ui@2.0.12/dist/tonconnect-ui.min.js"></script>
-  <script src="token-widget.js"></script>
   <script>
     function copyBlock(btn) {
       const code = btn.closest('pre').querySelector('code');
