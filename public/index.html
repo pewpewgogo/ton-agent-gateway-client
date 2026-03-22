@@ -129,6 +129,37 @@
       background: rgba(255,255,255,0.02);
     }
 
+    /* --- Demo tabs --- */
+    .demo-tabs {
+      display: flex;
+      justify-content: center;
+      gap: 4px;
+      margin-bottom: 12px;
+    }
+
+    .demo-tab {
+      font-family: var(--font-mono);
+      font-size: 12px;
+      font-weight: 500;
+      color: var(--text-dim);
+      background: none;
+      border: 1px solid transparent;
+      border-radius: 6px;
+      padding: 6px 14px;
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+
+    .demo-tab:hover {
+      color: var(--text);
+    }
+
+    .demo-tab.active {
+      color: var(--text-bright);
+      background: rgba(59,130,246,0.08);
+      border-color: rgba(59,130,246,0.2);
+    }
+
     /* --- Terminal / Chat demo --- */
     .terminal-wrapper {
       max-width: 640px;
@@ -601,6 +632,12 @@
 
     <!-- Terminal Demo -->
     <div class="terminal-wrapper">
+      <div class="demo-tabs">
+        <button class="demo-tab active" onclick="switchDemo('basic', this)">Transfer</button>
+        <button class="demo-tab" onclick="switchDemo('jetton', this)">Jettons</button>
+        <button class="demo-tab" onclick="switchDemo('nft', this)">NFTs</button>
+        <button class="demo-tab" onclick="switchDemo('deploy', this)">Deploy</button>
+      </div>
       <div class="terminal">
         <div class="terminal-bar">
           <div class="terminal-dot"></div>
@@ -777,23 +814,82 @@ curl -o skills/agent-gateway/SKILL.md \
 
   <script>
     // --- Chat animation ---
-    const lines = [
-      { type: 'you', text: 'Send 0.5 TON to EQD...abc' },
-      { type: 'spacer' },
-      { type: 'agent', text: "I'll request that transfer for you." },
-      { type: 'tool', html: '<code>request_transfer</code> to=EQD...abc amount=500000000' },
-      { type: 'spacer' },
-      { type: 'success', text: 'Transfer request created. Approve it in your wallet.' },
-      { type: 'spacer' },
-      { type: 'you', text: 'What is my balance?' },
-      { type: 'spacer' },
-      { type: 'tool', html: '<code>get_wallet_info</code>' },
-      { type: 'agent', text: '823.18 TON ($1,017) \u2022 4 jettons \u2022 25 NFTs' },
-    ];
+    const demos = {
+      basic: [
+        { type: 'you', text: 'Send 0.5 TON to EQD...abc' },
+        { type: 'spacer' },
+        { type: 'agent', text: "I'll request that transfer for you." },
+        { type: 'tool', html: '<code>request_transfer</code> to=EQD...abc amount=500000000' },
+        { type: 'spacer' },
+        { type: 'success', text: 'Transfer request created. Approve it in your wallet.' },
+        { type: 'spacer' },
+        { type: 'you', text: 'What is my balance?' },
+        { type: 'spacer' },
+        { type: 'tool', html: '<code>get_wallet_info</code>' },
+        { type: 'agent', text: '823.18 TON ($1,017) \u2022 4 jettons \u2022 25 NFTs' },
+      ],
+      jetton: [
+        { type: 'you', text: 'What tokens do I have?' },
+        { type: 'spacer' },
+        { type: 'tool', html: '<code>get_jetton_balances</code>' },
+        { type: 'agent', text: 'Your jetton balances:' },
+        { type: 'agent', text: '\u2022 USDT: 107.79' },
+        { type: 'agent', text: '\u2022 NOT: 3,186,370.60' },
+        { type: 'agent', text: '\u2022 BUILD: 45,277.57' },
+        { type: 'spacer' },
+        { type: 'you', text: 'What is TON price now?' },
+        { type: 'spacer' },
+        { type: 'tool', html: '<code>get_ton_price</code> currencies=USD' },
+        { type: 'agent', text: '1 TON = $2.45 USD' },
+      ],
+      nft: [
+        { type: 'you', text: 'Show my NFTs' },
+        { type: 'spacer' },
+        { type: 'tool', html: '<code>get_nft_items</code>' },
+        { type: 'agent', text: '25 NFTs found:' },
+        { type: 'agent', text: '\u2022 Sticker Family #15453 (Sticker Family)' },
+        { type: 'agent', text: '\u2022 Annabell (Lost Dogs)' },
+        { type: 'agent', text: '\u2022 ZarGates GiftBox (ZarGates)' },
+        { type: 'agent', text: '\u2022 ...and 22 more' },
+        { type: 'spacer' },
+        { type: 'you', text: 'Send Annabell to alice.ton' },
+        { type: 'spacer' },
+        { type: 'tool', html: '<code>resolve_name</code> domain=alice.ton' },
+        { type: 'tool', html: '<code>request_nft_transfer</code> nft=0:a1b2...' },
+        { type: 'success', text: 'NFT transfer request created. Approve in your wallet.' },
+      ],
+      deploy: [
+        { type: 'you', text: 'Deploy my smart contract' },
+        { type: 'spacer' },
+        { type: 'agent', text: 'Building the contract and preparing deployment...' },
+        { type: 'tool', html: '<code>request_transfer</code> to=0:new... amount=50000000 stateInit=te6c...' },
+        { type: 'spacer' },
+        { type: 'success', text: 'Deploy request created. Approve in your wallet.' },
+        { type: 'spacer' },
+        { type: 'you', text: 'Is it deployed?' },
+        { type: 'spacer' },
+        { type: 'tool', html: '<code>get_request_status</code> id=abc-123' },
+        { type: 'agent', text: 'Confirmed \u2022 Broadcast: success \u2022 Contract is live!' },
+      ],
+    };
 
     const demo = document.getElementById('chat-demo');
+    let lines = demos.basic;
     let lineIdx = 0;
     let started = false;
+    let animTimer = null;
+
+    function switchDemo(id, btn) {
+      document.querySelectorAll('.demo-tab').forEach(t => t.classList.remove('active'));
+      btn.classList.add('active');
+      // Stop current animation
+      if (animTimer) { clearTimeout(animTimer); animTimer = null; }
+      // Reset and play new demo
+      demo.innerHTML = '';
+      lines = demos[id];
+      lineIdx = 0;
+      showNextLine();
+    }
 
     function typeText(el, text, speed, cb) {
       let i = 0;
@@ -801,7 +897,7 @@ curl -o skills/agent-gateway/SKILL.md \
         if (i < text.length) {
           el.textContent += text[i];
           i++;
-          setTimeout(tick, speed);
+          animTimer = setTimeout(tick, speed);
         } else if (cb) {
           cb();
         }
@@ -827,7 +923,7 @@ curl -o skills/agent-gateway/SKILL.md \
         el.className = 't-spacer';
         demo.appendChild(el);
         lineIdx++;
-        setTimeout(showNextLine, 200);
+        animTimer = setTimeout(showNextLine, 200);
         return;
       }
 
@@ -838,14 +934,14 @@ curl -o skills/agent-gateway/SKILL.md \
 
       if (l.html) {
         el.innerHTML = l.html;
-        setTimeout(showNextLine, 600);
+        animTimer = setTimeout(showNextLine, 600);
       } else if (l.type === 'agent' || l.type === 'success') {
-        typeText(el, l.text, 25, () => setTimeout(showNextLine, 300));
+        typeText(el, l.text, 25, () => { animTimer = setTimeout(showNextLine, 300); });
       } else if (l.type === 'you') {
-        typeText(el, l.text, 40, () => setTimeout(showNextLine, 500));
+        typeText(el, l.text, 40, () => { animTimer = setTimeout(showNextLine, 500); });
       } else {
         el.textContent = l.text;
-        setTimeout(showNextLine, 500);
+        animTimer = setTimeout(showNextLine, 500);
       }
     }
 
