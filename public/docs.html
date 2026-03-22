@@ -41,31 +41,42 @@
 
     <!-- Overview -->
     <section class="card">
-      <h2 style="margin-top:0">Overview</h2>
-      <p>Agent Gateway lets AI agents request TON blockchain transactions that are approved by a human wallet owner. The agent never holds private keys — it only submits transfer requests that you review and sign via TON Connect.</p>
+      <h2 style="margin-top:0">Agent Gateway Overview</h2>
+      <p>Agent Gateway allows AI agents to request TON blockchain transactions that are securely approved by a human wallet owner. The AI agent never holds your private keys. It simply submits transfer requests for you to review, which you can then securely sign using TON Connect.</p>
 
-      <h3>How it works</h3>
+      <h3>How It Works</h3>
       <ol>
-        <li>You connect your wallet and receive an <strong>Agent Token</strong></li>
-        <li>Give this token to your AI agent (Claude, GPT, custom bot, etc.)</li>
-        <li>The agent calls the API to request transfers</li>
-        <li>You see pending requests in the <a href="/app.html">dashboard</a> and approve or reject them</li>
-        <li>Approved transactions are signed by your wallet via TON Connect</li>
+        <li><strong>Connect</strong> your wallet to the dashboard to generate a unique Agent Token.</li>
+        <li><strong>Provide</strong> this token to your AI agent (Claude, ChatGPT, or a custom bot).</li>
+        <li><strong>Agent</strong> utilizes the API to queue transfer requests.</li>
+        <li><strong>Review</strong> pending requests and approve or reject them.</li>
+        <li><strong>Approve</strong> to securely sign the transaction via TON Connect on your phone.</li>
       </ol>
+    </section>
 
-      <div class="note">
-        The token is scoped to a unique session. Even if someone knows your wallet address, they cannot create requests in your session without your exact token.
-      </div>
+    <!-- Security Model -->
+    <section class="card">
+      <h2 style="margin-top:0">Security Model</h2>
+      <p>Security is built directly into the architecture to ensure your assets remain safe.</p>
+      <table>
+        <tr><th>Feature</th><th>Description</th></tr>
+        <tr><td><strong>No Private Key Exposure</strong></td><td>The agent only has permission to request transfers. It cannot access your wallet keys.</td></tr>
+        <tr><td><strong>Mandatory Approval</strong></td><td>Every single transfer must be explicitly approved and signed by your wallet via TON Connect.</td></tr>
+        <tr><td><strong>Session Isolation</strong></td><td>Each token represents a unique session ID. Only the token holder can interact with that session's requests.</td></tr>
+        <tr><td><strong>Auto-Expiry</strong></td><td>Pending requests automatically expire after 5 minutes if left unapproved.</td></tr>
+        <tr><td><strong>Persistent Tokens</strong></td><td>Tokens remain valid until you manually revoke them from your dashboard.</td></tr>
+      </table>
     </section>
 
     <!-- Quick Start -->
     <section class="card">
       <h2 style="margin-top:0">Quick Start</h2>
 
-      <h3>1. Get your token</h3>
-      <p>Connect your wallet on the <a href="/app.html">dashboard</a> and copy the token.</p>
+      <h3>Step 1: Get your token</h3>
+      <p>Connect your wallet on the <a href="/app.html">dashboard</a> and copy your generated Agent Token.</p>
 
-      <h3>2. Make a transfer request</h3>
+      <h3>Step 2: Make a transfer request</h3>
+      <p>Use the API to request a transfer. Replace <code>YOUR_TOKEN</code> and the destination address.</p>
 <pre><code>curl -X POST https://api.tongateway.ai/v1/safe/tx/transfer \
   -H "Content-Type: application/json" \
   -H "Authorization: Bearer YOUR_TOKEN" \
@@ -74,82 +85,54 @@
     "amountNano": "1000000000"
   }'</code></pre>
 
-      <h3>3. Approve in dashboard</h3>
-      <p>The request appears in your <a href="/app.html">dashboard</a> within seconds. Click <strong>Approve</strong> to sign with your wallet.</p>
+      <h3>Step 3: Approve</h3>
+      <p>The pending request will be sent to your wallet app automatically. Approve it with one tap.</p>
     </section>
 
     <!-- REST API -->
     <section class="card">
-      <h2 style="margin-top:0">REST API</h2>
-      <p>Base URL: <code>https://api.tongateway.ai</code> &mdash; <a href="https://api.tongateway.ai/docs" target="_blank">Swagger UI</a></p>
-      <p>All <code>/v1/safe/*</code> endpoints require <code>Authorization: Bearer TOKEN</code> header.</p>
+      <h2 style="margin-top:0">REST API Reference</h2>
+      <p>Base URL: <code>https://api.tongateway.ai</code> &mdash; <a href="https://api.tongateway.ai/docs" target="_blank">Full Swagger docs</a></p>
 
-      <hr class="divider">
+      <div class="note">All <code>/v1/safe/*</code> and <code>/v1/wallet/*</code> endpoints require the <code>Authorization: Bearer TOKEN</code> header.</div>
 
-      <h3><span class="badge badge-post">POST</span> <span class="endpoint">/v1/auth/token</span></h3>
-      <p>Exchange wallet address for a JWT token.</p>
-<pre><code>// Request
-{ "address": "0:2dfd5e74cd9cd05b..." }
+      <h3>Endpoints</h3>
+      <table>
+        <tr><th>Method</th><th>Endpoint</th><th>Description</th></tr>
+        <tr><td><span class="badge badge-post">POST</span></td><td><code>/v1/auth/token</code></td><td>Exchange a wallet address for a JWT token.</td></tr>
+        <tr><td><span class="badge badge-get">GET</span></td><td><code>/v1/auth/me</code></td><td>Verify your token and retrieve the associated wallet address.</td></tr>
+        <tr><td><span class="badge badge-post">POST</span></td><td><code>/v1/auth/request</code></td><td>Generate a one-time auth link for agent-driven wallet connection.</td></tr>
+        <tr><td><span class="badge badge-get">GET</span></td><td><code>/v1/auth/check/:id</code></td><td>Poll for auth completion. Returns token when wallet is connected.</td></tr>
+        <tr><td><span class="badge badge-post">POST</span></td><td><code>/v1/safe/tx/transfer</code></td><td>Request a new TON transfer (queued for approval).</td></tr>
+        <tr><td><span class="badge badge-get">GET</span></td><td><code>/v1/safe/tx/pending</code></td><td>List all pending transfer requests.</td></tr>
+        <tr><td><span class="badge badge-get">GET</span></td><td><code>/v1/safe/tx/:id</code></td><td>Fetch details of a specific request by ID.</td></tr>
+        <tr><td><span class="badge badge-post">POST</span></td><td><code>/v1/safe/tx/:id/confirm</code></td><td>Confirm a request post-wallet signature.</td></tr>
+        <tr><td><span class="badge badge-post">POST</span></td><td><code>/v1/safe/tx/:id/reject</code></td><td>Reject a pending transfer request.</td></tr>
+        <tr><td><span class="badge badge-get">GET</span></td><td><code>/v1/wallet/balance</code></td><td>Get wallet TON balance and account status.</td></tr>
+        <tr><td><span class="badge badge-get">GET</span></td><td><code>/v1/wallet/jettons</code></td><td>List all jetton (token) balances.</td></tr>
+        <tr><td><span class="badge badge-get">GET</span></td><td><code>/v1/wallet/transactions</code></td><td>Recent transaction history.</td></tr>
+        <tr><td><span class="badge badge-get">GET</span></td><td><code>/v1/wallet/nfts</code></td><td>List NFTs owned by the wallet.</td></tr>
+        <tr><td><span class="badge badge-get">GET</span></td><td><code>/v1/dns/:domain/resolve</code></td><td>Resolve a .ton domain to a wallet address.</td></tr>
+        <tr><td><span class="badge badge-get">GET</span></td><td><code>/v1/market/price</code></td><td>Get current TON and jetton prices.</td></tr>
+      </table>
 
-// Response
-{ "token": "eyJhbG...", "address": "0:2dfd5e74cd9cd05b..." }</code></pre>
-
-      <hr class="divider">
-
-      <h3><span class="badge badge-get">GET</span> <span class="endpoint">/v1/auth/me</span></h3>
-      <p>Verify token and get wallet address.</p>
-<pre><code>// Response
-{ "address": "0:2dfd5e74cd9cd05b..." }</code></pre>
-
-      <hr class="divider">
-
-      <h3><span class="badge badge-post">POST</span> <span class="endpoint">/v1/safe/tx/transfer</span></h3>
-      <p>Request a TON transfer. The request is queued for wallet owner approval.</p>
+      <h3>Transfer Request Payload</h3>
       <table>
         <tr><th>Field</th><th>Type</th><th>Required</th><th>Description</th></tr>
-        <tr><td><code>to</code></td><td>string</td><td>Yes</td><td>Destination TON address</td></tr>
-        <tr><td><code>amountNano</code></td><td>string</td><td>Yes</td><td>Amount in nanoTON (1 TON = 1000000000)</td></tr>
-        <tr><td><code>payloadBoc</code></td><td>string</td><td>No</td><td>BOC-encoded payload</td></tr>
+        <tr><td><code>to</code></td><td>string</td><td>Yes</td><td>Destination TON address.</td></tr>
+        <tr><td><code>amountNano</code></td><td>string</td><td>Yes</td><td>Amount in nanoTON (1 TON = 1000000000).</td></tr>
+        <tr><td><code>payloadBoc</code></td><td>string</td><td>No</td><td>Optional BOC-encoded payload.</td></tr>
+        <tr><td><code>stateInit</code></td><td>string</td><td>No</td><td>Optional stateInit BOC for contract deployment.</td></tr>
       </table>
-<pre><code>// Response
-{
-  "id": "0ad28efd-d44a-4ac8-9104-1c3f0b7bfc7a",
-  "status": "pending",
-  "to": "0:2dfd5e...",
-  "amountNano": "1000000000",
-  "expiresAt": 1773329201052
-}</code></pre>
-
-      <hr class="divider">
-
-      <h3><span class="badge badge-get">GET</span> <span class="endpoint">/v1/safe/tx/pending</span></h3>
-      <p>List all pending transfer requests for your session.</p>
-<pre><code>// Response
-{ "requests": [ { "id": "...", "to": "...", "amountNano": "...", "status": "pending", ... } ] }</code></pre>
-
-      <hr class="divider">
-
-      <h3><span class="badge badge-get">GET</span> <span class="endpoint">/v1/safe/tx/:id</span></h3>
-      <p>Get a specific request by ID.</p>
-
-      <hr class="divider">
-
-      <h3><span class="badge badge-post">POST</span> <span class="endpoint">/v1/safe/tx/:id/confirm</span></h3>
-      <p>Confirm a pending request after wallet signs. Body: <code>{ "txHash": "..." }</code> (optional).</p>
-
-      <hr class="divider">
-
-      <h3><span class="badge badge-post">POST</span> <span class="endpoint">/v1/safe/tx/:id/reject</span></h3>
-      <p>Reject a pending request.</p>
     </section>
 
     <!-- MCP -->
     <section class="card">
-      <h2 style="margin-top:0">MCP Server (Claude Code / AI Agents)</h2>
-      <p>The easiest way to connect an AI agent is via the <strong>MCP server</strong>. It exposes Agent Gateway tools directly — no HTTP knowledge needed.</p>
+      <h2 style="margin-top:0">MCP Server Integration</h2>
+      <p>The simplest way to connect an AI agent is via the Model Context Protocol (MCP) server. This exposes Agent Gateway tools directly to the AI without requiring HTTP implementation.</p>
 
-      <h3>Configure in Claude Code</h3>
-      <p>Run in your terminal:</p>
+      <h3>Configuration for Claude Code</h3>
+      <p>Run this command directly in your terminal:</p>
 <pre><code>claude mcp add-json tongateway '{
   "command": "npx",
   "args": ["-y", "@tongateway/mcp"],
@@ -157,85 +140,83 @@
     "AGENT_GATEWAY_API_URL": "https://api.tongateway.ai"
   }
 }' --scope user</code></pre>
-      <p>Or add manually to your <code>.claude/settings.json</code>:</p>
+
+      <p>Alternatively, add manually to your <code>.claude/settings.json</code>:</p>
 <pre><code>{
   "mcpServers": {
     "tongateway": {
       "command": "npx",
       "args": ["-y", "@tongateway/mcp"],
       "env": {
-        "AGENT_GATEWAY_TOKEN": "YOUR_TOKEN_HERE",
         "AGENT_GATEWAY_API_URL": "https://api.tongateway.ai"
       }
     }
   }
 }</code></pre>
 
-      <h3>Available Tools</h3>
+      <h3>Available MCP Tools</h3>
       <table>
         <tr><th>Tool</th><th>Description</th></tr>
-        <tr><td><code>request_transfer</code></td><td>Request a TON transfer (to, amountNano, payloadBoc?)</td></tr>
-        <tr><td><code>get_request_status</code></td><td>Check status of a transfer request by ID</td></tr>
-        <tr><td><code>list_pending_requests</code></td><td>List all pending requests</td></tr>
+        <tr><td><code>request_auth</code></td><td>Generate a one-time link for wallet connection.</td></tr>
+        <tr><td><code>get_auth_token</code></td><td>Retrieve token after user connects wallet.</td></tr>
+        <tr><td><code>get_wallet_info</code></td><td>Get wallet address, TON balance, account status.</td></tr>
+        <tr><td><code>get_jetton_balances</code></td><td>List all token balances (USDT, NOT, etc.).</td></tr>
+        <tr><td><code>get_transactions</code></td><td>Recent transaction history.</td></tr>
+        <tr><td><code>get_nft_items</code></td><td>List NFTs owned by the wallet.</td></tr>
+        <tr><td><code>resolve_name</code></td><td>Resolve .ton domain to address.</td></tr>
+        <tr><td><code>get_ton_price</code></td><td>Get current TON price in USD/EUR.</td></tr>
+        <tr><td><code>request_transfer</code></td><td>Request a TON transfer (to, amountNano, payloadBoc?, stateInit?).</td></tr>
+        <tr><td><code>get_request_status</code></td><td>Check status of a transfer request by ID.</td></tr>
+        <tr><td><code>list_pending_requests</code></td><td>List all pending requests.</td></tr>
       </table>
-
-      <h3>Example conversation</h3>
-<pre><code>You: Send 0.5 TON to EQD...abc
-
-Agent: I'll request that transfer for you.
-       [calls request_transfer with to="EQD...abc", amountNano="500000000"]
-
-       Transfer request created (ID: abc-123).
-       Please approve it in your Agent Gateway dashboard.</code></pre>
     </section>
 
-    <!-- Direct HTTP from agent -->
+    <!-- Direct HTTP -->
     <section class="card">
-      <h2 style="margin-top:0">Direct HTTP (Python / JS / Any language)</h2>
+      <h2 style="margin-top:0">Direct HTTP Examples</h2>
 
       <h3>Python</h3>
 <pre><code>import requests
 
 API = "https://api.tongateway.ai"
 TOKEN = "your-token-here"
-headers = {"Authorization": f"Bearer {TOKEN}", "Content-Type": "application/json"}
+headers = {
+    "Authorization": f"Bearer {TOKEN}",
+    "Content-Type": "application/json"
+}
 
 # Request a transfer
-resp = requests.post(f"{API}/v1/safe/tx/transfer", headers=headers, json={
+payload = {
     "to": "0:destination-address",
     "amountNano": "1000000000"  # 1 TON
-})
+}
+resp = requests.post(f"{API}/v1/safe/tx/transfer", headers=headers, json=payload)
 print(resp.json())  # {"id": "...", "status": "pending", ...}
 
-# Check status
-req_id = resp.json()["id"]
-status = requests.get(f"{API}/v1/safe/tx/{req_id}", headers=headers)
-print(status.json()["status"])  # "pending" | "confirmed" | "rejected"</code></pre>
+# Check request status
+req_id = resp.json().get("id")
+status_resp = requests.get(f"{API}/v1/safe/tx/{req_id}", headers=headers)
+print(status_resp.json().get("status"))  # "pending", "confirmed", or "rejected"</code></pre>
 
-      <h3>JavaScript / Node.js</h3>
+      <h3>Node.js</h3>
 <pre><code>const API = "https://api.tongateway.ai";
 const TOKEN = "your-token-here";
 
-const res = await fetch(`${API}/v1/safe/tx/transfer`, {
-  method: "POST",
-  headers: { "Authorization": `Bearer ${TOKEN}`, "Content-Type": "application/json" },
-  body: JSON.stringify({ to: "0:destination", amountNano: "1000000000" }),
-});
+async function requestTransfer() {
+  const res = await fetch(`${API}/v1/safe/tx/transfer`, {
+    method: "POST",
+    headers: {
+      "Authorization": `Bearer ${TOKEN}`,
+      "Content-Type": "application/json"
+    },
+    body: JSON.stringify({ to: "0:destination", amountNano: "1000000000" }),
+  });
 
-const { id, status } = await res.json();
-console.log(id, status); // "abc-123" "pending"</code></pre>
-    </section>
+  const { id, status } = await res.json();
+  console.log(`Request ID: ${id}, Status: ${status}`);
+}
 
-    <!-- Security -->
-    <section class="card">
-      <h2 style="margin-top:0">Security Model</h2>
-      <ul>
-        <li><strong>Token = session key.</strong> Each token has a unique session ID. Only the token holder can create, view, or manage requests in that session.</li>
-        <li><strong>No private keys exposed.</strong> The agent never has access to your wallet keys. It can only request transfers — you sign them.</li>
-        <li><strong>Approval required.</strong> Every transfer must be explicitly approved and signed by your wallet via TON Connect.</li>
-        <li><strong>Auto-expiry.</strong> Pending requests expire after 5 minutes if not approved.</li>
-        <li><strong>Tokens don't expire.</strong> Tokens remain valid until explicitly revoked. Revoke tokens you no longer need from the dashboard.</li>
-      </ul>
+requestTransfer();</code></pre>
     </section>
   </div>
 
