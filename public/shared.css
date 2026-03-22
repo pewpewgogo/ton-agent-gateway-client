@@ -198,6 +198,22 @@ pre code {
   color: var(--text-dim);
 }
 
+.site-footer .center {
+  display: flex;
+  gap: 16px;
+}
+
+.site-footer .center a {
+  font-family: var(--font-mono);
+  font-size: 11px;
+  color: var(--text-dim);
+  text-decoration: none;
+  transition: color 0.2s;
+  opacity: 0.7;
+}
+
+.site-footer .center a:hover { color: var(--text); opacity: 1; text-decoration: none; }
+
 .site-footer .right {
   display: flex;
   gap: 20px;
