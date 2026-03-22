@@ -217,8 +217,8 @@
 
     .t-line {
       opacity: 0;
-      transform: translateY(4px);
-      animation: lineIn 0.3s ease forwards;
+      transform: translateY(6px);
+      animation: lineIn 0.4s ease forwards;
     }
 
     .t-you {
@@ -882,27 +882,11 @@ curl -o skills/agent-gateway/SKILL.md \
     function switchDemo(id, btn) {
       document.querySelectorAll('.demo-tab').forEach(t => t.classList.remove('active'));
       btn.classList.add('active');
-      // Stop current animation
       if (animTimer) { clearTimeout(animTimer); animTimer = null; }
-      // Reset and play new demo
       demo.innerHTML = '';
       lines = demos[id];
       lineIdx = 0;
       showNextLine();
-    }
-
-    function typeText(el, text, speed, cb) {
-      let i = 0;
-      function tick() {
-        if (i < text.length) {
-          el.textContent += text[i];
-          i++;
-          animTimer = setTimeout(tick, speed);
-        } else if (cb) {
-          cb();
-        }
-      }
-      tick();
     }
 
     function showNextLine() {
@@ -923,26 +907,25 @@ curl -o skills/agent-gateway/SKILL.md \
         el.className = 't-spacer';
         demo.appendChild(el);
         lineIdx++;
-        animTimer = setTimeout(showNextLine, 200);
+        animTimer = setTimeout(showNextLine, 120);
         return;
       }
 
       el.className = `t-line t-${l.type}`;
-      el.style.animationDelay = '0s';
+      if (l.html) {
+        el.innerHTML = l.html;
+      } else {
+        el.textContent = l.text;
+      }
       demo.appendChild(el);
       lineIdx++;
 
-      if (l.html) {
-        el.innerHTML = l.html;
-        animTimer = setTimeout(showNextLine, 600);
-      } else if (l.type === 'agent' || l.type === 'success') {
-        typeText(el, l.text, 12, () => { animTimer = setTimeout(showNextLine, 150); });
-      } else if (l.type === 'you') {
-        typeText(el, l.text, 20, () => { animTimer = setTimeout(showNextLine, 250); });
-      } else {
-        el.textContent = l.text;
-        animTimer = setTimeout(showNextLine, 500);
-      }
+      const delay = l.type === 'you' ? 600
+        : l.type === 'tool' ? 400
+        : l.type === 'success' ? 500
+        : 350;
+
+      animTimer = setTimeout(showNextLine, delay);
     }
 
     // --- Install tabs ---
