@@ -626,7 +626,7 @@
     <h1>Let AI agents move <span class="gradient">TON</span><br>with human approval</h1>
     <p class="hero-sub">Your agent requests transfers. You review and sign them. No private keys exposed, no blind trust — just a clean API between AI and Blockchain.</p>
     <div class="hero-actions">
-      <a href="/app.html" class="btn btn-primary">Open Dashboard</a>
+      <a href="#install" class="btn btn-primary" onclick="event.preventDefault();document.getElementById('install').scrollIntoView({behavior:'smooth'})">Start Using</a>
       <a href="/docs.html" class="btn btn-ghost">Read the Docs</a>
     </div>
 
@@ -676,7 +676,7 @@
     </div>
 
     <!-- Install command -->
-    <div class="install-block reveal">
+    <div class="install-block reveal" id="install">
       <div class="install-tabs">
         <button class="install-tab active" onclick="switchInstallTab('claude', this)">Claude Code</button>
         <button class="install-tab" onclick="switchInstallTab('cursor', this)">Cursor</button>
