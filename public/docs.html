@@ -121,7 +121,7 @@
         <tr><th>Field</th><th>Type</th><th>Required</th><th>Description</th></tr>
         <tr><td><code>to</code></td><td>string</td><td>Yes</td><td>Destination TON address.</td></tr>
         <tr><td><code>amountNano</code></td><td>string</td><td>Yes</td><td>Amount in nanoTON (1 TON = 1000000000).</td></tr>
-        <tr><td><code>payloadBoc</code></td><td>string</td><td>No</td><td>Optional BOC-encoded payload.</td></tr>
+        <tr><td><code>payload</code></td><td>string</td><td>No</td><td>Optional BOC-encoded payload.</td></tr>
         <tr><td><code>stateInit</code></td><td>string</td><td>No</td><td>Optional stateInit BOC for contract deployment.</td></tr>
       </table>
     </section>
@@ -165,58 +165,12 @@
         <tr><td><code>get_nft_items</code></td><td>List NFTs owned by the wallet.</td></tr>
         <tr><td><code>resolve_name</code></td><td>Resolve .ton domain to address.</td></tr>
         <tr><td><code>get_ton_price</code></td><td>Get current TON price in USD/EUR.</td></tr>
-        <tr><td><code>request_transfer</code></td><td>Request a TON transfer (to, amountNano, payloadBoc?, stateInit?).</td></tr>
+        <tr><td><code>request_transfer</code></td><td>Request a TON transfer (to, amountNano, payload?, stateInit?).</td></tr>
         <tr><td><code>get_request_status</code></td><td>Check status of a transfer request by ID.</td></tr>
         <tr><td><code>list_pending_requests</code></td><td>List all pending requests.</td></tr>
       </table>
     </section>
 
-    <!-- Direct HTTP -->
-    <section class="card">
-      <h2 style="margin-top:0">Direct HTTP Examples</h2>
-
-      <h3>Python</h3>
-<pre><code>import requests
-
-API = "https://api.tongateway.ai"
-TOKEN = "your-token-here"
-headers = {
-    "Authorization": f"Bearer {TOKEN}",
-    "Content-Type": "application/json"
-}
-
-# Request a transfer
-payload = {
-    "to": "0:destination-address",
-    "amountNano": "1000000000"  # 1 TON
-}
-resp = requests.post(f"{API}/v1/safe/tx/transfer", headers=headers, json=payload)
-print(resp.json())  # {"id": "...", "status": "pending", ...}
-
-# Check request status
-req_id = resp.json().get("id")
-status_resp = requests.get(f"{API}/v1/safe/tx/{req_id}", headers=headers)
-print(status_resp.json().get("status"))  # "pending", "confirmed", or "rejected"</code></pre>
-
-      <h3>Node.js</h3>
-<pre><code>const API = "https://api.tongateway.ai";
-const TOKEN = "your-token-here";
-
-async function requestTransfer() {
-  const res = await fetch(`${API}/v1/safe/tx/transfer`, {
-    method: "POST",
-    headers: {
-      "Authorization": `Bearer ${TOKEN}`,
-      "Content-Type": "application/json"
-    },
-    body: JSON.stringify({ to: "0:destination", amountNano: "1000000000" }),
-  });
-
-  const { id, status } = await res.json();
-  console.log(`Request ID: ${id}, Status: ${status}`);
-}
-
-requestTransfer();</code></pre>
     </section>
   </div>
 
