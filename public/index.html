@@ -726,22 +726,16 @@
       </div>
 
       <div class="install-panel" id="install-openclaw">
-        <p class="install-hint">Download the skill file into your project:</p>
-<pre class="install-pre"><code>mkdir -p skills/agent-gateway
-curl -o skills/agent-gateway/SKILL.md \
-  https://tongateway.ai/agent-gateway.md</code><button class="install-copy" onclick="copyInstall(this)">Copy</button></pre>
-        <p class="install-hint">Or add MCP server to your OpenClaw config:</p>
-<pre class="install-pre"><code>{
-  "mcpServers": {
-    "tongateway": {
-      "command": "npx",
-      "args": ["-y", "@tongateway/mcp"],
-      "env": {
-        "AGENT_GATEWAY_API_URL": "https://api.tongateway.ai"
-      }
+        <p class="install-hint">Run in your terminal:</p>
+<pre class="install-pre"><code>openclaw config set --strict-json plugins.entries.acpx.config.mcpServers '{
+  "tongateway": {
+    "command": "npx",
+    "args": ["-y", "@tongateway/mcp"],
+    "env": {
+      "AGENT_GATEWAY_API_URL": "https://api.tongateway.ai"
     }
   }
-}</code><button class="install-copy" onclick="copyInstall(this)">Copy</button></pre>
+}'</code><button class="install-copy" onclick="copyInstall(this)">Copy</button></pre>
       </div>
 
       <p class="install-hint">Then just say:</p>
