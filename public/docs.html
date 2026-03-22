@@ -20,6 +20,40 @@
     th, td { text-align: left; padding: 8px 12px; border-bottom: 1px solid var(--border); }
     th { color: var(--text-dim); font-weight: 600; font-size: 12px; text-transform: uppercase; letter-spacing: 0.05em; }
     td code { font-size: 12px; }
+    .warning-box {
+      background: rgba(251,191,36,0.06);
+      border: 1px solid rgba(251,191,36,0.2);
+      border-left: 3px solid #fbbf24;
+      border-radius: 0 8px 8px 0;
+      padding: 16px 20px;
+      margin-bottom: 16px;
+      font-size: 13px;
+      line-height: 1.6;
+    }
+    .warning-box strong { color: #fbbf24; }
+    .danger-box {
+      background: rgba(248,113,113,0.06);
+      border: 1px solid rgba(248,113,113,0.2);
+      border-left: 3px solid #f87171;
+      border-radius: 0 8px 8px 0;
+      padding: 16px 20px;
+      margin-bottom: 16px;
+      font-size: 13px;
+      line-height: 1.6;
+    }
+    .danger-box strong { color: #f87171; }
+    .section-badge {
+      display: inline-block;
+      font-family: var(--font-mono);
+      font-size: 11px;
+      font-weight: 600;
+      letter-spacing: 0.05em;
+      padding: 3px 8px;
+      border-radius: 4px;
+      margin-bottom: 12px;
+    }
+    .badge-safe { background: rgba(52,211,153,0.12); color: var(--green); }
+    .badge-danger { background: rgba(248,113,113,0.12); color: #f87171; }
   </style>
 </head>
 <body>
@@ -57,15 +91,24 @@
     <!-- Security Model -->
     <section class="card">
       <h2 style="margin-top:0">Security Model</h2>
-      <p>Security is built directly into the architecture to ensure your assets remain safe.</p>
+      <p>Security is built directly into the architecture to ensure your assets remain safe. We offer two distinct operational models:</p>
+
+      <span class="section-badge badge-safe">Standard Mode (Human-in-the-loop)</span>
+      <p>This is the default and recommended way to use Agent Gateway.</p>
       <table>
         <tr><th>Feature</th><th>Description</th></tr>
         <tr><td><strong>No Private Key Exposure</strong></td><td>The agent only has permission to request transfers. It cannot access your wallet keys.</td></tr>
         <tr><td><strong>Mandatory Approval</strong></td><td>Every single transfer must be explicitly approved and signed by your wallet via TON Connect.</td></tr>
         <tr><td><strong>Session Isolation</strong></td><td>Each token represents a unique session ID. Only the token holder can interact with that session's requests.</td></tr>
         <tr><td><strong>Auto-Expiry</strong></td><td>Pending requests automatically expire after 5 minutes if left unapproved.</td></tr>
-        <tr><td><strong>Persistent Tokens</strong></td><td>Tokens remain valid until you manually revoke them from your dashboard.</td></tr>
       </table>
+
+      <span class="section-badge badge-danger">IN DEVELOPMENT: Autonomous Mode (Agent Wallets)</span>
+      <p>A new, high-risk feature is currently in development that allows you to deploy a dedicated sub-wallet for your AI agent.</p>
+      <div class="danger-box">
+        <strong>CRITICAL SECURITY WARNING:</strong> Deploying an Agent Wallet removes the "Mandatory Approval" safeguard. The agent interacts with a consentless API to finalize transfers immediately, meaning the agent has full financial autonomy over the funds in that specific wallet.<br><br>
+        If the agent malfunctions, hallucinates, or is compromised by malicious prompt injection, your funds can be drained instantly without your permission. Treat these as "hot wallets" and only fund them with amounts you are strictly willing to lose.
+      </div>
     </section>
 
     <!-- Quick Start -->
@@ -96,6 +139,7 @@
 
       <div class="note">All <code>/v1/safe/*</code> and <code>/v1/wallet/*</code> endpoints require the <code>Authorization: Bearer TOKEN</code> header.</div>
 
+      <span class="section-badge badge-safe">Standard Safe API</span>
       <h3>Endpoints</h3>
       <table>
         <tr><th>Method</th><th>Endpoint</th><th>Description</th></tr>
@@ -124,6 +168,13 @@
         <tr><td><code>payload</code></td><td>string</td><td>No</td><td>Optional BOC-encoded payload.</td></tr>
         <tr><td><code>stateInit</code></td><td>string</td><td>No</td><td>Optional stateInit BOC for contract deployment.</td></tr>
       </table>
+    </section>
+
+      <span class="section-badge badge-danger">Autonomous Agent API (In Development)</span>
+      <div class="warning-box">
+        <strong>DANGER:</strong> Endpoints in this category bypass human approval. Transactions are executed immediately by the Agent Wallet.<br><br>
+        API specifications for Agent Wallet deployment and autonomous execution are currently under development and will be documented here prior to release.
+      </div>
     </section>
 
     <!-- MCP -->
@@ -169,8 +220,6 @@
         <tr><td><code>get_request_status</code></td><td>Check status of a transfer request by ID.</td></tr>
         <tr><td><code>list_pending_requests</code></td><td>List all pending requests.</td></tr>
       </table>
-    </section>
-
     </section>
   </div>
 
