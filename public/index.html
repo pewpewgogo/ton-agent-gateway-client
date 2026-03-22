@@ -218,7 +218,7 @@
     .t-line {
       opacity: 0;
       transform: translateY(6px);
-      animation: lineIn 0.4s ease forwards;
+      animation: lineIn 0.25s ease forwards;
     }
 
     .t-you {
@@ -907,7 +907,7 @@ curl -o skills/agent-gateway/SKILL.md \
         el.className = 't-spacer';
         demo.appendChild(el);
         lineIdx++;
-        animTimer = setTimeout(showNextLine, 120);
+        animTimer = setTimeout(showNextLine, 60);
         return;
       }
 
@@ -920,10 +920,10 @@ curl -o skills/agent-gateway/SKILL.md \
       demo.appendChild(el);
       lineIdx++;
 
-      const delay = l.type === 'you' ? 600
-        : l.type === 'tool' ? 400
-        : l.type === 'success' ? 500
-        : 350;
+      const delay = l.type === 'you' ? 350
+        : l.type === 'tool' ? 200
+        : l.type === 'success' ? 280
+        : 180;
 
       animTimer = setTimeout(showNextLine, delay);
     }
