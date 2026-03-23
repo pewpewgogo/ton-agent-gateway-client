@@ -239,24 +239,30 @@
       try {
         const address = wallet.account.address;
 
-        // Extract TC session from localStorage (SDK stores it there)
+        // Extract TC session from localStorage (SDK stores it async — retry a few times)
         let tcSession = null;
-        try {
-          const stored = localStorage.getItem('ton-connect-storage_bridge-connection');
-          if (stored) {
-            const conn = JSON.parse(stored);
-            if (conn.type === 'http' && conn.session) {
-              tcSession = {
-                secretKey: conn.session.sessionKeyPair.secretKey,
-                publicKey: conn.session.sessionKeyPair.publicKey,
-                walletPublicKey: conn.session.walletPublicKey,
-                bridgeUrl: conn.session.bridgeUrl || 'https://bridge.tonapi.io/bridge',
-              };
+        for (let attempt = 0; attempt < 5; attempt++) {
+          try {
+            const stored = localStorage.getItem('ton-connect-storage_bridge-connection');
+            if (stored) {
+              const conn = JSON.parse(stored);
+              if (conn.type === 'http' && conn.session && conn.session.sessionKeyPair && conn.session.walletPublicKey) {
+                tcSession = {
+                  secretKey: conn.session.sessionKeyPair.secretKey,
+                  publicKey: conn.session.sessionKeyPair.publicKey,
+                  walletPublicKey: conn.session.walletPublicKey,
+                  bridgeUrl: conn.session.bridgeUrl || 'https://bridge.tonapi.io/bridge',
+                };
+                break;
+              }
             }
+          } catch (e) {
+            console.error('TC session extraction attempt ' + attempt + ':', e);
           }
-        } catch (e) {
-          console.error('Failed to extract TC session:', e);
+          await new Promise(r => setTimeout(r, 500));
         }
+
+        console.log('TC session extracted:', tcSession ? 'yes' : 'no', tcSession);
 
         // Complete auth on server
         const res = await fetch(`${API_URL}/v1/auth/complete/${authId}`, {
