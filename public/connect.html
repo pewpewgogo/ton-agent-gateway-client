@@ -239,33 +239,37 @@
       try {
         const address = wallet.account.address;
 
-        // Extract wallet's TC public key from localStorage (for server-side bridge push)
-        let walletPublicKey = null;
-        let bridgeUrl = 'https://bridge.tonapi.io/bridge';
-        for (let attempt = 0; attempt < 5; attempt++) {
+        // Extract TonConnectUI's full session from localStorage
+        // The server needs the SAME keypair that the wallet connected to
+        let tcSession = null;
+        for (let attempt = 0; attempt < 10; attempt++) {
           try {
             const stored = localStorage.getItem('ton-connect-storage_bridge-connection');
             if (stored) {
               const conn = JSON.parse(stored);
-              if (conn.type === 'http' && conn.session?.walletPublicKey) {
-                walletPublicKey = conn.session.walletPublicKey;
-                bridgeUrl = conn.session.bridgeUrl || bridgeUrl;
+              if (conn.type === 'http' && conn.session?.sessionKeyPair?.secretKey && conn.session?.walletPublicKey) {
+                tcSession = {
+                  secretKey: conn.session.sessionKeyPair.secretKey,
+                  publicKey: conn.session.sessionKeyPair.publicKey,
+                  walletPublicKey: conn.session.walletPublicKey,
+                  bridgeUrl: conn.session.bridgeUrl || 'https://bridge.tonapi.io/bridge',
+                };
                 break;
               }
             }
           } catch (e) {
-            console.error('TC key extraction attempt ' + attempt + ':', e);
+            console.error('TC session extraction attempt ' + attempt + ':', e);
           }
           await new Promise(r => setTimeout(r, 500));
         }
 
-        console.log('Wallet public key:', walletPublicKey ? 'found' : 'not found');
+        console.log('TC session:', tcSession ? 'extracted (pubkey: ' + tcSession.publicKey?.slice(0, 8) + ')' : 'NOT FOUND');
 
-        // Complete auth on server (server already has its own keypair from auth/request)
+        // Complete auth — send TonConnectUI's keypair to server
         const res = await fetch(`${API_URL}/v1/auth/complete/${authId}`, {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ address, walletPublicKey, bridgeUrl }),
+          body: JSON.stringify({ address, tcSession }),
         });
 
         if (!res.ok) {
