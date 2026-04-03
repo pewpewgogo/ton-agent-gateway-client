@@ -221,42 +221,26 @@
       animation: lineIn 0.25s ease forwards;
     }
 
-    .t-you {
-      color: var(--green);
-    }
-
-    .t-you::before {
-      content: 'You  ';
-      color: var(--text-dim);
-      font-size: 11px;
-    }
-
-    .t-agent {
-      color: var(--text-bright);
-    }
-
-    .t-agent::before {
-      content: 'Agent  ';
-      color: var(--accent);
-      font-size: 11px;
-    }
-
     .t-tool {
       color: var(--text-dim);
-      padding-left: 20px;
-      font-size: 12px;
+      font-size: 13px;
     }
 
     .t-tool code {
-      color: var(--amber);
-      background: rgba(251,191,36,0.08);
+      color: var(--green);
+      background: rgba(52,211,153,0.08);
       padding: 1px 6px;
       border-radius: 3px;
     }
 
+    .t-agent {
+      color: var(--text-bright);
+      padding-left: 16px;
+    }
+
     .t-success {
       color: var(--green);
-      padding-left: 20px;
+      padding-left: 16px;
     }
 
     .t-spacer {
@@ -623,10 +607,10 @@
   <section class="hero">
     <div class="hero-glow"></div>
     <div class="hero-badge">Live on TON Mainnet</div>
-    <h1>Give your agent access<br>to <span class="gradient">Blockchain</span></h1>
-    <p class="hero-sub">Let Claude, GPT, or your custom bot interact natively with the TON blockchain. No private keys shared with agents.</p>
+    <h1>TON blockchain<br>from your <span class="gradient">terminal</span></h1>
+    <p class="hero-sub">Manage your wallet, send transfers, swap tokens on DEX, and deploy agent wallets. One CLI for everything TON.</p>
     <div class="hero-actions">
-      <a href="#install" class="btn btn-primary" onclick="event.preventDefault();document.getElementById('install').scrollIntoView({behavior:'smooth'})">Start Using</a>
+      <a href="#install" class="btn btn-primary" onclick="event.preventDefault();document.getElementById('install').scrollIntoView({behavior:'smooth'})">Install CLI</a>
       <a href="/docs.html" class="btn btn-ghost">Read the Docs</a>
     </div>
 
@@ -634,16 +618,16 @@
     <div class="terminal-wrapper">
       <div class="demo-tabs">
         <button class="demo-tab active" onclick="switchDemo('basic', this)">Transfer</button>
-        <button class="demo-tab" onclick="switchDemo('jetton', this)">Jettons</button>
-        <button class="demo-tab" onclick="switchDemo('nft', this)">NFTs</button>
-        <button class="demo-tab" onclick="switchDemo('deploy', this)">Deploy</button>
+        <button class="demo-tab" onclick="switchDemo('jetton', this)">Wallet</button>
+        <button class="demo-tab" onclick="switchDemo('nft', this)">DEX</button>
+        <button class="demo-tab" onclick="switchDemo('deploy', this)">Agent</button>
       </div>
       <div class="terminal">
         <div class="terminal-bar">
           <div class="terminal-dot"></div>
           <div class="terminal-dot"></div>
           <div class="terminal-dot"></div>
-          <div class="terminal-title">agent-gateway session</div>
+          <div class="terminal-title">tgw — tongateway cli</div>
         </div>
         <div class="terminal-body" id="chat-demo">
         </div>
@@ -658,34 +642,45 @@
     <div class="steps">
       <div class="step">
         <div class="step-num">01</div>
-        <h3>Install MCP server</h3>
-        <p>One command to add Agent Gateway to Claude Code, Cursor, or any MCP client.</p>
+        <h3>Install the CLI</h3>
+        <p>One command: <code>npm i -g @tongateway/cli</code>. Works on macOS, Linux, and Windows.</p>
         <span class="step-connector">&rarr;</span>
       </div>
       <div class="step">
         <div class="step-num">02</div>
-        <h3>Agent connects your wallet</h3>
-        <p>The agent generates a link. You open it, connect your wallet — the agent gets access automatically.</p>
+        <h3>Connect your wallet</h3>
+        <p>Run <code>tgw auth</code>, open the link, connect your TON wallet — done.</p>
         <span class="step-connector">&rarr;</span>
       </div>
       <div class="step">
         <div class="step-num">03</div>
         <h3>Approve on your phone</h3>
-        <p>Your agent requests transfers. You get a notification in your wallet app and approve with one tap.</p>
+        <p>Send transfers, swap tokens, check balances. Transfers get a push notification — approve with one tap.</p>
       </div>
     </div>
 
     <!-- Install command -->
     <div class="install-block reveal" id="install">
       <div class="install-tabs">
-        <button class="install-tab active" onclick="switchInstallTab('claude', this)">Claude Code</button>
-        <button class="install-tab" onclick="switchInstallTab('cursor', this)">Cursor</button>
-        <button class="install-tab" onclick="switchInstallTab('codex', this)">Codex CLI</button>
-        <button class="install-tab" onclick="switchInstallTab('openclaw', this)">OpenClaw</button>
+        <button class="install-tab active" onclick="switchInstallTab('cli', this)">CLI</button>
+        <button class="install-tab" onclick="switchInstallTab('claude', this)">Claude Code (MCP)</button>
+        <button class="install-tab" onclick="switchInstallTab('cursor', this)">Cursor (MCP)</button>
+        <button class="install-tab" onclick="switchInstallTab('codex', this)">Codex (MCP)</button>
       </div>
 
-      <div class="install-panel active" id="install-claude">
-        <p class="install-hint">Run in your terminal:</p>
+      <div class="install-panel active" id="install-cli">
+        <p class="install-hint">Install globally:</p>
+<pre class="install-pre"><code>npm i -g @tongateway/cli</code><button class="install-copy" onclick="copyInstall(this)">Copy</button></pre>
+        <p class="install-hint">Then authenticate:</p>
+<pre class="install-pre"><code>tgw auth</code><button class="install-copy" onclick="copyInstall(this)">Copy</button></pre>
+        <p class="install-hint">And you're ready:</p>
+<pre class="install-pre install-example"><code>tgw wallet info
+tgw transfer send --to alice.ton --amount 1.5
+tgw dex swap --from NOT --to TON --amount 10000 --price 0.000289</code></pre>
+      </div>
+
+      <div class="install-panel" id="install-claude">
+        <p class="install-hint">For AI agent integration, add the MCP server:</p>
 <pre class="install-pre"><code>claude mcp add-json tongateway '{
   "command": "npx",
   "args": ["-y", "@tongateway/mcp"],
@@ -696,7 +691,7 @@
       </div>
 
       <div class="install-panel" id="install-cursor">
-        <p class="install-hint">Add to Cursor Settings &rarr; MCP Servers:</p>
+        <p class="install-hint">For AI agent integration, add to Cursor Settings &rarr; MCP Servers:</p>
 <pre class="install-pre"><code>{
   "mcpServers": {
     "tongateway": {
@@ -711,7 +706,7 @@
       </div>
 
       <div class="install-panel" id="install-codex">
-        <p class="install-hint">Add to <code>~/.codex/config.json</code>:</p>
+        <p class="install-hint">For AI agent integration, add to <code>~/.codex/config.json</code>:</p>
 <pre class="install-pre"><code>{
   "mcpServers": {
     "tongateway": {
@@ -725,37 +720,32 @@
 }</code><button class="install-copy" onclick="copyInstall(this)">Copy</button></pre>
       </div>
 
-      <div class="install-panel" id="install-openclaw">
-        <p class="install-hint">Run in your terminal:</p>
-<pre class="install-pre"><code>openclaw config set --strict-json plugins.entries.acpx.config.mcpServers '{
-  "tongateway": {
-    "command": "npx",
-    "args": ["-y", "@tongateway/mcp"],
-    "env": {
-      "AGENT_GATEWAY_API_URL": "https://api.tongateway.ai"
-    }
-  }
-}'</code><button class="install-copy" onclick="copyInstall(this)">Copy</button></pre>
-      </div>
-
-      <p class="install-hint">Then just say:</p>
-<pre class="install-pre install-example"><code>Send 1 TON to EQD...abc</code></pre>
-      <p class="install-hint">The agent will connect your wallet, request the transfer, and you approve in your wallet app.</p>
+      <p class="install-hint">Every command supports <code>--json</code> for scripting and AI agents.</p>
     </div>
   </section>
 
   <!-- Skill -->
   <section class="section reveal">
-    <div class="section-label">Skill</div>
-    <div class="section-title">Works with your stack</div>
+    <div class="section-label">Integrations</div>
+    <div class="section-title">CLI first. MCP for AI agents.</div>
     <div class="integration-cards">
+      <a href="https://www.npmjs.com/package/@tongateway/cli" target="_blank" class="integration-card">
+        <div class="integration-card-icon" style="background:rgba(52,211,153,0.08)">
+          <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#34d399" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="4 17 10 11 4 5"/><line x1="12" y1="19" x2="20" y2="19"/></svg>
+        </div>
+        <div class="integration-card-body">
+          <h3>tgw CLI</h3>
+          <p>Full TON access from your terminal. Wallet, transfers, DEX swaps, agent wallets. Supports <code>--json</code> for scripting.</p>
+          <code>npm i -g @tongateway/cli</code>
+        </div>
+      </a>
       <a href="/skill/claude.html" class="integration-card">
         <div class="integration-card-icon" style="background:rgba(212,165,116,0.08)">
           <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#d4a574" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2L2 7l10 5 10-5-10-5z"/><path d="M2 17l10 5 10-5"/><path d="M2 12l10 5 10-5"/></svg>
         </div>
         <div class="integration-card-body">
           <h3>Claude Code</h3>
-          <p>Install the MCP server or drop in a skill file. Claude will know the full API and request transfers on your behalf.</p>
+          <p>MCP server integration. Claude gets 16 tools for wallet, transfers, DEX, and agent wallets.</p>
           <span class="integration-card-link">Setup guide &rarr;</span>
         </div>
       </a>
@@ -765,17 +755,7 @@
         </div>
         <div class="integration-card-body">
           <h3>Cursor</h3>
-          <p>Add the MCP server to your Cursor settings. Your AI assistant gets native access to Agent Gateway tools.</p>
-          <span class="integration-card-link">Setup guide &rarr;</span>
-        </div>
-      </a>
-      <a href="/skill/codex.html" class="integration-card">
-        <div class="integration-card-icon" style="background:rgba(52,211,153,0.08)">
-          <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#34d399" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="3" width="20" height="14" rx="2" ry="2"/><line x1="8" y1="21" x2="16" y2="21"/><line x1="12" y1="17" x2="12" y2="21"/></svg>
-        </div>
-        <div class="integration-card-body">
-          <h3>Codex</h3>
-          <p>Connect via MCP server. Codex agents can request TON transfers through the same protocol.</p>
+          <p>MCP server for Cursor. Your AI assistant gets native TON blockchain access.</p>
           <span class="integration-card-link">Setup guide &rarr;</span>
         </div>
       </a>
@@ -785,13 +765,13 @@
         </div>
         <div class="integration-card-body">
           <h3>MCP Server</h3>
-          <p>Works with any MCP-compatible client via stdio transport. One <code>npm install</code> and you're set.</p>
+          <p>Works with any MCP-compatible client. <code>npx @tongateway/mcp</code></p>
           <span class="integration-card-link">Setup guide &rarr;</span>
         </div>
       </a>
     </div>
     <div class="integration-fallback">
-      Don't see your tool? Just use the <a href="https://api.tongateway.ai/docs" target="_blank">REST API</a> directly — full Swagger docs included.
+      Need raw HTTP? Use the <a href="https://api.tongateway.ai/docs" target="_blank">REST API</a> directly — full Swagger docs included.
     </div>
   </section>
 
@@ -799,9 +779,9 @@
   <footer class="site-footer">
     <div class="left">&copy; 2026 Agent Gateway &middot; Built on <svg viewBox="12 15 32 30" fill="none" xmlns="http://www.w3.org/2000/svg" style="display:inline-block;height:14px;width:14px;vertical-align:middle"><path d="M37.5603 15.6277H18.4386C14.9228 15.6277 12.6944 19.4202 14.4632 22.4861L26.2644 42.9409C27.0345 44.2765 28.9644 44.2765 29.7345 42.9409L41.5381 22.4861C43.3045 19.4251 41.0761 15.6277 37.5627 15.6277H37.5603ZM26.2548 36.8068L23.6847 31.8327L17.4833 20.7414C17.0742 20.0315 17.5795 19.1218 18.4362 19.1218H26.2524V36.8092L26.2548 36.8068ZM38.5108 20.739L32.3118 31.8351L29.7417 36.8068V19.1194H37.5579C38.4146 19.1194 38.9199 20.0291 38.5108 20.739Z" fill="currentColor"></path></svg> TON</div>
     <div class="center">
+      <a href="https://github.com/tongateway/cli" target="_blank">CLI</a>
       <a href="https://github.com/tongateway/mcp" target="_blank">MCP Server</a>
       <a href="https://github.com/tongateway/ton-agent-gateway-api" target="_blank">API</a>
-      <a href="https://github.com/tongateway/ton-agent-gateway-client" target="_blank">Client</a>
       <a href="https://github.com/tongateway/ton-agent-gateway-contract" target="_blank">Agent Wallet</a>
     </div>
     <div class="right">
@@ -816,60 +796,58 @@
     // --- Chat animation ---
     const demos = {
       basic: [
-        { type: 'you', text: 'Send 0.5 TON to EQD...abc' },
+        { type: 'tool', html: '$ <code>tgw transfer send</code> --to alice.ton --amount 1.5' },
         { type: 'spacer' },
-        { type: 'agent', text: "I'll request that transfer for you." },
-        { type: 'tool', html: '<code>request_transfer</code> to=EQD...abc amount=500000000' },
+        { type: 'agent', text: 'Request ID  tx-7f3a2b' },
+        { type: 'agent', text: 'To          alice.ton' },
+        { type: 'agent', text: 'Amount      1.5 TON' },
+        { type: 'agent', text: 'Status      pending' },
         { type: 'spacer' },
-        { type: 'success', text: 'Transfer request created. Approve it in your wallet.' },
+        { type: 'success', text: 'Approve in your wallet app.' },
         { type: 'spacer' },
-        { type: 'you', text: 'What is my balance?' },
-        { type: 'spacer' },
-        { type: 'tool', html: '<code>get_wallet_info</code>' },
-        { type: 'agent', text: '823.18 TON ($1,017) \u2022 4 jettons \u2022 25 NFTs' },
+        { type: 'tool', html: '$ <code>tgw transfer status</code> tx-7f3a2b' },
+        { type: 'success', text: 'Status      confirmed' },
       ],
       jetton: [
-        { type: 'you', text: 'What tokens do I have?' },
+        { type: 'tool', html: '$ <code>tgw wallet info</code>' },
         { type: 'spacer' },
-        { type: 'tool', html: '<code>get_jetton_balances</code>' },
-        { type: 'agent', text: 'Your jetton balances:' },
-        { type: 'agent', text: '\u2022 USDT: 107.79' },
-        { type: 'agent', text: '\u2022 NOT: 3,186,370.60' },
-        { type: 'agent', text: '\u2022 BUILD: 45,277.57' },
+        { type: 'agent', text: 'Address  EQ9d43...0c02' },
+        { type: 'agent', text: 'Balance  823.18 TON' },
+        { type: 'agent', text: 'Status   active' },
         { type: 'spacer' },
-        { type: 'you', text: 'What is TON price now?' },
+        { type: 'tool', html: '$ <code>tgw wallet jettons</code>' },
         { type: 'spacer' },
-        { type: 'tool', html: '<code>get_ton_price</code> currencies=USD' },
-        { type: 'agent', text: '1 TON = $2.45 USD' },
+        { type: 'agent', text: 'Token   Balance         Address' },
+        { type: 'agent', text: 'NOT     3,186,370.6     0:2f95...' },
+        { type: 'agent', text: 'USDT    107.79          0:b113...' },
+        { type: 'agent', text: 'BUILD   45,277.57       0:589d...' },
       ],
       nft: [
-        { type: 'you', text: 'Show my NFTs' },
+        { type: 'tool', html: '$ <code>tgw dex pairs</code>' },
         { type: 'spacer' },
-        { type: 'tool', html: '<code>get_nft_items</code>' },
-        { type: 'agent', text: '25 NFTs found:' },
-        { type: 'agent', text: '\u2022 Sticker Family #15453 (Sticker Family)' },
-        { type: 'agent', text: '\u2022 Annabell (Lost Dogs)' },
-        { type: 'agent', text: '\u2022 ZarGates GiftBox (ZarGates)' },
-        { type: 'agent', text: '\u2022 ...and 22 more' },
+        { type: 'agent', text: 'Available tokens: TON, NOT, USDT, DOGS, BUILD, AGNT, CBBTC, PX, XAUT0' },
         { type: 'spacer' },
-        { type: 'you', text: 'Send Annabell to alice.ton' },
+        { type: 'tool', html: '$ <code>tgw dex swap</code> --from NOT --to TON --amount 10000 --price 0.000289' },
         { type: 'spacer' },
-        { type: 'tool', html: '<code>resolve_name</code> domain=alice.ton' },
-        { type: 'tool', html: '<code>request_nft_transfer</code> nft=0:a1b2...' },
-        { type: 'success', text: 'NFT transfer request created. Approve in your wallet.' },
+        { type: 'agent', text: 'Order      NOT \u2192 TON' },
+        { type: 'agent', text: 'Amount     10000' },
+        { type: 'agent', text: 'Price      0.000289 TON per NOT' },
+        { type: 'agent', text: 'Slippage   4%' },
+        { type: 'spacer' },
+        { type: 'success', text: 'Approve in your wallet app.' },
       ],
       deploy: [
-        { type: 'you', text: 'Deploy my smart contract' },
+        { type: 'tool', html: '$ <code>tgw agent deploy</code>' },
         { type: 'spacer' },
-        { type: 'agent', text: 'Building the contract and preparing deployment...' },
-        { type: 'tool', html: '<code>request_transfer</code> to=0:new... amount=50000000 stateInit=te6c...' },
+        { type: 'agent', text: 'Agent Wallet  EQCT1...8a3f' },
+        { type: 'agent', text: 'Wallet ID     698983191' },
+        { type: 'success', text: 'Top up this wallet with TON before using it.' },
         { type: 'spacer' },
-        { type: 'success', text: 'Deploy request created. Approve in your wallet.' },
+        { type: 'tool', html: '$ <code>tgw agent transfer</code> --address EQCT1... --to EQabc... --amount 0.5' },
         { type: 'spacer' },
-        { type: 'you', text: 'Is it deployed?' },
-        { type: 'spacer' },
-        { type: 'tool', html: '<code>get_request_status</code> id=abc-123' },
-        { type: 'agent', text: 'Confirmed \u2022 Broadcast: success \u2022 Contract is live!' },
+        { type: 'agent', text: 'Request ID  tx-9e4c1d' },
+        { type: 'agent', text: 'Status      sent' },
+        { type: 'success', text: 'No approval needed \u2014 agent wallet executes directly.' },
       ],
     };
 
